@@ -1,0 +1,168 @@
+/* claude-drafted: 2026-11-24 · 클라우드 컴퓨팅 팀 과제 발표 덱의 모양.
+   색 · 글꼴은 소개 페이지(site/intro)의 Floe 토큰 그대로. 틀(넘김 · 발표자 창 · 화면 맞춤)은 vendor/html-ppt.
+   규칙: 장마다 제목 한 줄(두 줄까지) + 그림 하나. 면은 색 단계로 나누고 선 · 그림자 · 그러데이션은 쓰지 않는다. */
+
+@font-face{font-family:"Bagel Fat One";src:url("fonts/BagelFatOne-Regular.woff") format("woff");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Gowun Dodum";src:url("fonts/GowunDodum-Regular.woff") format("woff");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Nanum Gothic Coding";src:url("fonts/NanumGothicCoding-Regular.woff") format("woff");font-weight:400;font-style:normal;font-display:swap}
+
+:root{
+  /* Floe 토큰 */
+  --desk:#E9EEF6;      /* 바탕 */
+  --paper:#F2F5FA;     /* 종이 */
+  --ice:#D3E0F3;       /* 얼음 */
+  --ice-2:#C6D5EE;
+  --btn:#B8C9F0;       /* 단추 */
+  --btn-ink:#263066;
+  --ink:#2B3463;       /* 글자 */
+  --mute:#5B6491;      /* 흐린 글자: 바탕 · 종이 위에서만 (4.9:1 · 5.2:1) */
+  --sea:#4D66B5;       /* 바다 */
+  --island:#363E62;    /* 섬 */
+  --gold:#E6CB86;
+  --gold-soft:#F3E9CC;
+  --mint:#A9E2C4;
+  --mint-soft:#DDF1E6;
+  --rose:#EFC3CB;
+  --rose-deep:#8E3A52; /* 차트 둘째 계열 */
+  --off:#DCE3EF;       /* 쓰지 않는 칸 */
+
+  --font-disp:"Bagel Fat One","Gowun Dodum","Apple SD Gothic Neo",sans-serif;
+  --font-text:"Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --font-code:"Nanum Gothic Coding",monospace;
+
+  /* vendor/html-ppt 가 읽는 이름에 잇기 */
+  --bg:var(--desk);--bg-soft:var(--paper);--surface:var(--paper);--surface-2:var(--ice);
+  --text-1:var(--ink);--text-2:var(--mute);--text-3:var(--mute);
+  --accent:var(--sea);--accent-ink:var(--paper);
+  --font-sans:var(--font-text);--font-display:var(--font-disp);
+  --letter-tight:0;--letter-normal:0;
+}
+
+html,body{background:var(--desk);color:var(--ink);font-family:var(--font-text);letter-spacing:0}
+
+/* ── 한 장의 틀: 제목은 위, 그림은 남은 자리 가운데 ── */
+.deck .slide{justify-content:flex-start;padding:84px 112px 108px}
+.ttl{font-family:var(--font-disp);font-weight:400;font-size:80px;line-height:1.2;color:var(--ink);margin:0;word-break:keep-all}
+.fig{flex:1;min-height:0;margin:44px 0 0;display:flex;flex-direction:column;align-items:stretch;justify-content:center}
+.fig > svg{display:block;width:100%;height:100%;max-height:100%;font-family:var(--font-text)}
+.src{font-size:24px;line-height:1.4;color:var(--mute);margin:18px 0 0}
+.say{font-size:34px;line-height:1.45;color:var(--ink);margin:24px 0 0;word-break:keep-all}
+
+/* 아래 줄: 평가표 일곱 칸 중 지금 자리 + 쪽 번호 */
+.foot{position:absolute;left:112px;right:112px;bottom:38px;display:flex;align-items:center;justify-content:space-between;font-size:24px;line-height:1;color:var(--mute)}
+.foot .where{display:flex;align-items:center;gap:18px}
+.foot .trk{display:flex;gap:8px}
+.foot .trk i{display:block;width:40px;height:10px;border-radius:5px;background:var(--ice)}
+.foot .trk i.on{background:var(--sea)}
+
+/* ── 표지 ── */
+.cover{display:grid;grid-template-columns:1.25fr 1fr;align-items:center;gap:40px;flex:1;min-height:0}
+.cover h1{font-family:var(--font-disp);font-weight:400;font-size:124px;line-height:1.14;margin:0;color:var(--ink);word-break:keep-all}
+.cover .lede{font-size:40px;line-height:1.45;margin:36px 0 0;color:var(--ink)}
+.cover .who{font-size:32px;line-height:1.5;margin:14px 0 0;color:var(--mute)}
+.cover .seal{justify-self:center;width:min(100%,600px);aspect-ratio:1;border-radius:84px;background:var(--btn);overflow:hidden} /* 플로로 바탕: 원본의 쨍한 파랑 대신 파스텔 한 가지 색 */
+.cover .seal img{width:100%;height:auto}
+
+/* ── 줄 셋(목표 · 배운 것): 큰 말 한 줄씩, 색 단계로 나눔 ── */
+.rows{display:grid;gap:20px;grid-auto-rows:1fr;height:100%;max-height:600px}
+.rows > div{display:flex;align-items:center;justify-content:space-between;gap:40px;padding:38px 52px;border-radius:30px;background:var(--paper)}
+.rows > div:nth-child(2){background:var(--ice)}
+.rows > div:nth-child(3){background:var(--ice-2)}
+.rows b{font-family:var(--font-disp);font-weight:400;font-size:62px;line-height:1.2;word-break:keep-all}
+.rows span{font-size:34px;line-height:1.4;color:var(--ink);text-align:right;flex:none;max-width:44%;word-break:keep-all}
+
+/* ── 층(기술 SPEC) · 표(권한 · 팀): 진짜 표, 줄 대신 색 단계 ── */
+table.band{width:100%;border-collapse:separate;border-spacing:0 12px}
+table.band th,table.band td{text-align:left;vertical-align:middle;padding:22px 36px;font-weight:400;font-size:32px;line-height:1.4;background:var(--paper);word-break:keep-all}
+table.band tr:nth-child(even) th,table.band tr:nth-child(even) td{background:var(--ice)}
+table.band th{font-family:var(--font-disp);font-size:40px;white-space:nowrap;border-radius:24px 0 0 24px}
+table.band td:last-child{border-radius:0 24px 24px 0}
+table.band td.n{font-family:var(--font-disp);font-size:38px;text-align:right;white-space:nowrap}
+table.band thead th{font-family:var(--font-text);font-size:26px;color:var(--mute);background:none;padding:0 36px 2px}
+table.band.tight th,table.band.tight td{padding:25px 36px;font-size:34px}
+table.band.tight th{font-size:42px}
+table.band.tight td.n{font-size:36px}
+
+/* ── 화면 사진: 창 틀(주소 줄 + 사진) ── */
+.wins{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:start}
+.wins.one{grid-template-columns:1fr;justify-items:center}
+.win{margin:0;min-width:0}
+.win .bar{background:var(--island);color:var(--paper);font-size:26px;line-height:1;padding:17px 28px;border-radius:22px 22px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.win img{display:block;width:100%;height:auto;border-radius:0 0 22px 22px;background:var(--paper)}
+.win figcaption{font-size:32px;line-height:1.4;margin:18px 0 0;color:var(--ink);word-break:keep-all}
+.wins.one .win{width:min(100%,1180px)}
+.slot{border-radius:22px;background:var(--paper);outline:4px dashed var(--btn);outline-offset:-4px;aspect-ratio:4/3;display:grid;place-items:center;text-align:center;font-size:34px;line-height:1.5;color:var(--mute);padding:24px}
+.wins.three{grid-template-columns:repeat(3,1fr);gap:36px}
+
+/* ── 명령어: 진짜 코드만 코드 글꼴 ── */
+pre.cmd{margin:0;background:var(--island);color:var(--paper);border-radius:30px;padding:44px 56px;font-size:33px;line-height:1.62;overflow:hidden;white-space:pre}
+pre.cmd code{font-family:var(--font-code)}
+pre.cmd .c{color:var(--btn)}
+
+/* ── 완성도 판: 세 칸 ── */
+.board{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:22px;align-items:stretch}
+.board section{border-radius:30px;padding:34px 40px;background:var(--mint-soft)}
+.board section:nth-child(2){background:var(--gold-soft)}
+.board section:nth-child(3){background:var(--paper)}
+.board h3{font-family:var(--font-disp);font-weight:400;font-size:46px;line-height:1.2;margin:0 0 16px;letter-spacing:0}
+.board ul{margin:0;padding:0;list-style:none}
+.board li{font-size:30px;line-height:1.42;padding:7px 0;word-break:keep-all}
+.zip{font-size:28px;line-height:1.5;margin:24px 0 0;color:var(--ink);word-break:break-all}
+.zip code{font-family:var(--font-code);font-size:26px}
+
+/* ── 큰 숫자 넷 ── */
+.nums{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.nums > div{background:var(--paper);border-radius:30px;padding:56px 44px 48px}
+.nums > div:nth-child(even){background:var(--ice)}
+.nums b{display:block;font-family:var(--font-disp);font-weight:400;font-size:170px;line-height:1;color:var(--ink)}
+.nums span{display:block;font-size:32px;line-height:1.4;margin-top:16px;color:var(--ink);word-break:keep-all}
+
+/* ── 끝 장 ── */
+.bye{display:flex;align-items:baseline;justify-content:space-between;gap:40px;margin:40px 0 0}
+.bye b{font-family:var(--font-disp);font-weight:400;font-size:52px;line-height:1.2}
+.bye span{font-size:32px;color:var(--ink)}
+
+/* ── 그림(SVG) 안의 글과 면 ── */
+svg .t{font-size:32px;fill:var(--ink)}
+svg .s{font-size:27px;fill:var(--mute)}
+svg .b{font-family:var(--font-disp);font-size:36px;fill:var(--ink)}
+svg .ln{stroke:var(--ink);stroke-width:4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+svg .ln.plan{stroke:var(--mute);stroke-dasharray:4 12}
+svg .ic{stroke:var(--ink);stroke-width:4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+svg .on{fill:var(--mint)}
+svg .try{fill:var(--gold)}
+svg .base{fill:var(--ice)}
+svg .plan-box{fill:var(--paper);stroke:var(--mute);stroke-width:4;stroke-dasharray:4 12;stroke-linecap:round}
+svg .off-box{fill:var(--off)}
+svg .off-ic{opacity:.38}
+svg .card{fill:var(--paper)}
+
+/* ── 발표자 창 메모(쉬운 말 세 줄 · 질문이 오면) ── */
+.notes .easy{margin:0 0 10px;padding:0 0 0 18px}
+.notes .easy li{margin:2px 0}
+
+/* ── 인쇄 · PDF: 한 장에 한 슬라이드 ── */
+@page{size:1920px 1080px;margin:0}
+@media print{
+  html,body{background:var(--desk)!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .deck .slide{height:1080px!important;max-height:1080px!important;width:1920px!important;overflow:hidden!important;break-inside:avoid;page-break-inside:avoid}
+}
+
+/* ── 숫자 둘 + 화면 하나(3장) ── */
+.pair{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:64px;align-items:center;height:100%;min-height:0}
+.stat b{display:block;font-family:var(--font-disp);font-weight:400;font-size:150px;line-height:1;color:var(--ink)}
+.stat b + span + b{margin-top:44px}
+.stat span{display:block;font-size:36px;line-height:1.4;margin-top:10px;word-break:keep-all}
+.stat small{display:block;font-size:24px;color:var(--mute);margin-top:40px}
+.win.tall{height:100%;max-height:660px;aspect-ratio:1440/962;display:flex;flex-direction:column}
+.win.tall img{flex:1;min-height:0;object-fit:cover;object-position:top center}
+
+/* 움직임을 줄이라는 설정이면 넘김 효과 없이 바로 바꾼다 */
+@media (prefers-reduced-motion:reduce){.deck .slide{transition:none;transform:none}}
+
+/* ── 녹화본(17장): 16:9 한 칸. 영상 파일이 없으면 자리 그림 ── */
+.rec{margin:0 auto;height:100%;max-height:100%;max-width:100%;aspect-ratio:16/9;display:grid}
+.rec > *{grid-area:1/1;width:100%;height:100%;min-height:0}
+.rec video{display:block;object-fit:contain;background:var(--island);border-radius:22px}
+.rec .slot{aspect-ratio:auto}
+.rec [hidden],.src [hidden]{display:none}
