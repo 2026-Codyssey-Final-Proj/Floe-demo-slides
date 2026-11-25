@@ -1,14 +1,14 @@
 <!doctype html>
-<!-- claude-drafted: 2026-11-24 · 이재엽의 요청("클라우드 컴퓨팅 발표자료 … 깃허브 io로 html로")으로 Claude가 썼다.
-     차례는 과제 평가표 1 ~ 7. 숫자 · 상태는 2026-11-24 저장소 기록 기준이라 발표 전에 다시 센다(README.md).
+<!-- claude-drafted: 2026-11-24 · 2026-11-25 v2 — 이재엽의 요청으로 Claude가 썼다. v2는 "3조 클라우드컴퓨팅 발표자료 v2"(PPTX 22장)와 발표문 v2를 그대로 옮긴 판이다.
+     차례는 과제 평가표 1 ~ 7. 숫자 · 상태는 2026-11-25 저장소 · GitHub · Jira 기록 기준이라 발표 전에 다시 센다(README.md).
      공개 주소 https://2026-codyssey-final-proj.github.io/Floe-demo-slides/ · 고칠 곳은 이 저장소 한 곳(Floe-demo-slides).
      넘김 ← →  ·  전체 화면 F  ·  발표자 창(대본) S  ·  한눈에 O  ·  인쇄하면 한 장에 한 슬라이드 -->
 <html lang="ko">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Floe 데모를 클라우드에 올리기 · 클라우드 컴퓨팅 팀 과제</title>
-<meta name="description" content="Floe 데모 페이지를 AWS(S3 · CloudFront · EC2)에 올린 과정. 클라우드 컴퓨팅 팀 과제 발표 2026-12-02.">
+<title>Floe 데모를 코드로 배포하다 · 클라우드 컴퓨팅 3조</title>
+<meta name="description" content="Floe 데모 페이지를 Terraform · GitHub Actions · Backstage로 AWS(S3 · CloudFront · EC2)에 올린 과정. 클라우드 컴퓨팅 팀 과제 3조 발표 2026-12-02.">
 <link rel="stylesheet" href="vendor/html-ppt/base.css">
 <link rel="stylesheet" href="deck.css">
 </head>
@@ -27,781 +27,699 @@
 <section class="slide" data-sec="0" data-title="표지">
   <div class="cover">
     <div>
-      <h1>Floe 데모를<br>클라우드에 올리기</h1>
-      <p class="lede">클라우드 컴퓨팅 팀 과제 · 2026-12-02</p>
-      <p class="who">이재엽 · 송해광 · 박민혁 · 오성준 · 김주경</p>
+      <p class="kick">클라우드 컴퓨팅 팀별 과제 · 3조</p>
+      <h1>Floe 데모를<br>코드로 배포하다</h1>
+      <p class="lede">Terraform · GitHub Actions · Backstage로 만든 AWS 배포 파이프라인</p>
+      <p class="who">이재엽(PM · 발표) · 송해광 · 오성준 · 김주경 · 박민혁<br>발표 2026-12-02(수)</p>
     </div>
     <div class="seal"><img src="shots/floro-deck.svg" alt="Floe의 길잡이 물범 플로로"></div>
   </div>
   <aside class="notes">
     <p><em>(0:30 · 누적 0:30 · 발표 이재엽)</em></p>
-    <p>안녕하세요. 저희는 <strong>Floe라는 앱의 데모 페이지를 AWS에 올린 과정</strong>을 발표합니다.</p>
-    <p>차례는 평가표 그대로입니다. 개요, 구성도, 쓴 기술과 배포, 소스, 시연, 역할, 그리고 GitHub와 자동화입니다. 화면 아래 줄에 지금 어느 칸인지 보입니다.</p>
+    <p>안녕하세요, 3조 발표를 맡은 PM 이재엽입니다. 저희 주제는 <strong>"Floe 데모를 코드로 배포하다"</strong>입니다.</p>
+    <p>AWS 콘솔에서 손으로 서버를 만드는 대신, Terraform 코드와 GitHub Actions, 그리고 Backstage 포털로 배포 길을 만들었습니다. 팀원은 송해광, 오성준, 김주경, 박민혁, 그리고 저까지 다섯 명입니다.</p>
   </aside>
 </section>
 
-<!-- 2 선정 배경 -->
-<section class="slide" data-sec="1" data-title="선정 배경">
-  <h2 class="ttl">AI로 만드는 사람은 늘고,<br>믿는 사람은 줄었습니다</h2>
-  <figure class="fig" style="margin-bottom:0">
-    <svg viewBox="0 0 1696 560" role="img" aria-label="AI 도구를 쓰거나 쓸 계획인 개발자는 2023년 70%에서 2025년 84%로 늘었고, AI 결과를 믿는 개발자는 2024년 43%에서 2025년 33%로 줄었다.">
-      <line x1="230" y1="60" x2="1250" y2="60" stroke="#C5CEE2" stroke-width="2"/>
-      <line x1="230" y1="265" x2="1250" y2="265" stroke="#C5CEE2" stroke-width="2"/>
-      <line x1="230" y1="470" x2="1250" y2="470" stroke="#5B6491" stroke-width="3"/>
-      <text class="s" x="205" y="69" text-anchor="end">100%</text>
-      <text class="s" x="205" y="274" text-anchor="end">50%</text>
-      <text class="s" x="205" y="479" text-anchor="end">0</text>
-      <text class="t" x="330" y="522" text-anchor="middle">2023</text>
-      <text class="t" x="770" y="522" text-anchor="middle">2024</text>
-      <text class="t" x="1210" y="522" text-anchor="middle">2025</text>
-
-      <polyline points="330,183 770,158.4 1210,125.6" fill="none" stroke="#4D66B5" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-      <polyline points="770,293.7 1210,334.7" fill="none" stroke="#8E3A52" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-      <g fill="#4D66B5" stroke="#E9EEF6" stroke-width="4"><circle cx="330" cy="183" r="13"/><circle cx="770" cy="158.4" r="13"/><circle cx="1210" cy="125.6" r="13"/></g>
-      <g fill="#8E3A52" stroke="#E9EEF6" stroke-width="4"><circle cx="770" cy="293.7" r="13"/><circle cx="1210" cy="334.7" r="13"/></g>
-
-      <text class="b" x="330" y="150" text-anchor="middle">70%</text>
-      <text class="b" x="770" y="125" text-anchor="middle">76%</text>
-      <text class="b" x="1210" y="92" text-anchor="middle">84%</text>
-      <text class="b" x="770" y="350" text-anchor="middle">43%</text>
-      <text class="b" x="1210" y="392" text-anchor="middle">33%</text>
-
-      <circle cx="1330" cy="113" r="13" fill="#4D66B5"/>
-      <text class="b" x="1360" y="126" style="font-size:44px">쓰는 사람</text>
-      <text class="s" x="1360" y="164">AI 도구를 쓰거나 쓸 계획</text>
-      <circle cx="1330" cy="322" r="13" fill="#8E3A52"/>
-      <text class="b" x="1360" y="335" style="font-size:44px">믿는 사람</text>
-      <text class="s" x="1360" y="373">AI가 낸 결과를 믿는다</text>
-    </svg>
-  </figure>
-  <p class="src">출처: Stack Overflow 개발자 설문 2023 ~ 2025 · Floe 발표 덱에서 인용 2026-codyssey-final-proj.github.io/Floe-open-index</p>
-  <aside class="notes">
-    <p><em>(1:00 · 누적 1:30)</em></p>
-    <p>먼저 왜 이 주제인지입니다. 전 세계 개발자 설문에서, <strong>AI 도구를 쓰는 사람은 2년 새 70%에서 84%로 늘었습니다.</strong></p>
-    <p>그런데 <strong>AI가 낸 결과를 믿는다는 사람은 43%에서 33%로 줄었습니다.</strong> 코드는 빨리 나오는데, 왜 그렇게 됐는지 설명하지 못하는 겁니다.</p>
-    <p>저희 팀이 만든 Floe는 이 틈을 메우려는 앱입니다. 이 숫자는 Floe 발표 페이지에서 가져왔습니다.</p>
-    <p><strong>질문이 오면:</strong> "믿는 사람 2023년 값은요?" → 같은 문항은 2024년부터 있어 두 해만 그렸습니다.</p>
-  </aside>
-</section>
-
-<!-- 3 Floe 한 줄 -->
-<section class="slide" data-sec="1" data-title="Floe">
-  <h2 class="ttl">Floe는 길을 잃지 않게 하는 길잡이입니다</h2>
-  <div class="fig shot2">
-    <div class="pair">
-      <div class="stat">
-        <b>55%</b><span>다음에 뭘 할지 몰랐다</span>
-        <b>73%</b><span>만든 것을 끝까지 설명하지 못했다</span>
-        <small>코디세이 수강생 33명 · 2026.11</small>
-      </div>
-      <figure class="win tall">
-        <div class="bar">연습 데모 · 단계를 넘기 전에 이해했는지 묻는 화면</div>
-        <img src="shots/nav-gate.jpg" alt="Floe 데모 화면. 플로로가 이번 단계에서 한 일이 이해되었는지 묻고, 네 이해했어요와 아니요 같이 풀어요 단추가 있다.">
-      </figure>
-    </div>
-  </div>
-  <p class="src">출처: Floe 발표 덱 2026-codyssey-final-proj.github.io/Floe-open-index · 화면은 우리 데모 페이지</p>
-  <aside class="notes">
-    <p><em>(1:00 · 누적 2:30)</em></p>
-    <p>저희가 수강생 33명에게 직접 물었습니다. AI로 만들다가 <strong>55%는 다음에 뭘 할지 몰랐고, 73%는 만든 것을 끝까지 설명하지 못했습니다.</strong></p>
-    <p>Floe는 그래서 세 가지를 합니다. 프로젝트를 여덟 단계 지도로 보여 주고, 할 일은 하나씩만 주고, 단계를 넘기 전에 오른쪽 화면처럼 <strong>"이해되셨나요?"</strong>를 묻습니다. 초안은 AI가 쓰고, 넘어갈지는 사람이 정합니다.</p>
-    <p>이 앱의 연습용 데모와 소개 페이지를 클라우드에 올리는 것이 이번 과제입니다.</p>
-  </aside>
-</section>
-
-<!-- 4 개발 목표 -->
-<section class="slide" data-sec="1" data-title="개발 목표">
-  <h2 class="ttl">이번 과제의 목표는 셋입니다</h2>
+<!-- 2 평가표 지도 -->
+<section class="slide" data-sec="0" data-title="평가표 지도">
+  <h2 class="ttl">평가표 일곱 칸을 차례대로 보여 드립니다</h2>
   <div class="fig">
-    <div class="rows">
-      <div><b>주소 하나로 누구나 연다</b><span>S3 + CloudFront에 올림 · 11/17부터 열림</span></div>
-      <div><b>손으로 만들지 않는다</b><span>AWS 자원은 모두 Terraform 코드로</span></div>
-      <div><b>버튼으로 서버를 만든다</b><span>포털 양식 → 자동 배포 · 진행 중</span></div>
-    </div>
+    <table class="tbl big">
+      <colgroup><col style="width:68%"><col style="width:12%"><col style="width:20%"></colgroup>
+      <thead><tr><th>평가 항목</th><th class="c">배점</th><th class="c">슬라이드</th></tr></thead>
+      <tbody>
+        <tr><td>1. 프로젝트 개요 — 선정 배경 · 개발 목표</td><td class="c">5</td><td class="c">3 – 4</td></tr>
+        <tr><td>2. 전체 시스템 구성도 — 목표 시스템 · 서비스 흐름 · 기술 SPEC</td><td class="c">10</td><td class="c">5 – 8</td></tr>
+        <tr><td>3. 개발 S/W · DBMS · AI 활용 · AWS 클라우드 배포</td><td class="c">20</td><td class="c">9 – 14</td></tr>
+        <tr><td>4. 개발 소스 제출 · 개발 완성도</td><td class="c">20</td><td class="c">15</td></tr>
+        <tr><td>5. 발표 장표 · 기능 설명 · 시연</td><td class="c">25</td><td class="c">16 – 17</td></tr>
+        <tr><td>6. 팀별 역할 — 업무 배분 · 참여도</td><td class="c">10</td><td class="c">18</td></tr>
+        <tr><td>7. 가점 — Jira 협업 · GitHub · CI/CD · 교훈</td><td class="c">10</td><td class="c">19 – 22</td></tr>
+      </tbody>
+    </table>
   </div>
-  <p class="src">다섯 명 · 3주(11/10 ~ 12/02) · AWS 서울 리전 · 예산 알림 월 $40</p>
   <aside class="notes">
-    <p><em>(0:50 · 누적 3:20)</em></p>
-    <p>개발 목표는 셋입니다. 첫째, <strong>주소 하나로 누구나 열 수 있게</strong> 합니다. 이건 11월 17일부터 열려 있습니다.</p>
-    <p>둘째, <strong>AWS 자원을 콘솔에서 손으로 만들지 않습니다.</strong> 전부 Terraform이라는 설계도 코드로 만듭니다. 누가 무엇을 만들었는지 남기기 위해서입니다.</p>
-    <p>셋째, <strong>포털에서 양식을 내면 서버가 만들어지게</strong> 합니다. 이건 지금 진행 중이고, 어디까지 됐는지는 뒤에서 그대로 말씀드립니다.</p>
-    <p>환경은 팀 다섯 명, 3주, 서울 리전입니다.</p>
+    <p><em>(0:20 · 누적 0:50)</em></p>
+    <p>발표는 교수님께서 주신 <strong>평가표 일곱 칸 순서 그대로</strong> 진행하겠습니다. 오른쪽 열이 각 항목을 보여 드릴 슬라이드 번호입니다.</p>
+    <p>가장 배점이 큰 3번 개발·클라우드 배포와 5번 시연에 가장 많은 장을 썼습니다. 화면 아래 줄에 지금 어느 칸인지 보입니다.</p>
   </aside>
 </section>
 
-<!-- 5 AWS 구성도 -->
-<section class="slide" data-sec="2" data-title="목표 시스템 구성도">
-  <h2 class="ttl">과제 예시 구성도에 우리 것을 맞추면</h2>
+<!-- 3 선정 배경 -->
+<section class="slide" data-sec="1" data-title="선정 배경">
+  <h2 class="ttl">콘솔에서 손으로 만든 서버는 기록이 남지 않는다</h2>
+  <div class="fig">
+    <div class="vs">
+      <div class="h l">손으로 할 때</div><div></div><div class="h r">코드로 할 때</div>
+      <div class="b st-plan">누가 무엇을 바꿨는지 모른다</div><div class="a">→</div><div class="b st-on">설계도(.tf)와 PR에 기록이 남는다</div>
+      <div class="b st-plan">사람마다 설정이 달라진다</div><div class="a">→</div><div class="b st-on">같은 코드면 같은 인프라가 나온다</div>
+      <div class="b st-plan">팀원마다 AWS 키를 나눠 줘야 한다</div><div class="a">→</div><div class="b st-on">키 없이 실행할 때만 역할을 빌린다</div>
+    </div>
+    <p class="goalbar"><b>목표</b>&nbsp; 다섯 명이 같은 AWS를 안전하게 나눠 쓰는 배포 길을 만든다</p>
+  </div>
+  <aside class="notes">
+    <p><em>(0:35 · 누적 1:25)</em></p>
+    <p>처음 문제는 이것이었습니다. 콘솔에서 손으로 서버를 만들면 <strong>누가 무엇을 바꿨는지 기록이 남지 않고</strong>, 사람마다 설정이 조금씩 달라지고, 다섯 명이 같이 쓰려면 AWS 키를 나눠 줘야 합니다.</p>
+    <p>코드로 하면 반대가 됩니다. 설계도와 PR에 기록이 남고, 같은 코드는 같은 인프라를 만들고, 키는 실행할 때만 잠깐 빌립니다.</p>
+    <p>그래서 목표를 <strong>"다섯 명이 같은 AWS를 안전하게 나눠 쓰는 배포 길"</strong>로 잡았습니다.</p>
+  </aside>
+</section>
+
+<!-- 4 배포 대상 · 목표 -->
+<section class="slide" data-sec="1" data-title="배포 대상 · 목표">
+  <h2 class="ttl">배포 대상은 Floe 데모, 목표는 세 가지</h2>
+  <div class="fig">
+    <div class="split wide-l">
+      <div class="col" style="justify-content:center">
+        <figure class="win">
+          <div class="bar">d2ai5qb4183u6q.cloudfront.net/intro/</div>
+          <img src="shots/intro.jpg" alt="Floe 소개 페이지 첫 화면. Floe 이름과 길잡이 물범 플로로 그림이 있다.">
+          <figcaption>Floe — AI에게 코드를 맡기는 사람을 단계별로 안내하는 데스크톱 앱. 이번에는 웹 연습판을 AWS에 올렸다.</figcaption>
+        </figure>
+      </div>
+      <div class="cards" style="grid-auto-rows:1fr">
+        <div class="num st-on"><i>1</i><p><b>공개 주소 하나</b><br><span>누구나 여는 HTTPS 주소 · S3 + CloudFront</span></p></div>
+        <div class="num st-ap"><i>2</i><p><b>인프라 전부 코드로</b><br><span>Terraform 파일 21개 · AWS 자원 44개 정의</span></p></div>
+        <div class="num" style="background:#E4DEF4"><i>3</i><p><b>팀원은 양식만 채운다</b><br><span>Backstage 포털 → GitHub Actions<br>→ Systems Manager</span></p></div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><em>(0:35 · 누적 2:00)</em></p>
+    <p>배포 대상은 저희 팀이 만들고 있는 Floe입니다. Floe는 AI에게 코드를 맡기는 사람을 단계별로 안내하는 데스크톱 앱이고, 이번에는 그 <strong>웹 연습판</strong>을 올렸습니다.</p>
+    <p>목표는 셋입니다. 첫째, 누구나 여는 <strong>공개 주소 하나</strong>. 둘째, 인프라 전부를 <strong>Terraform 코드로</strong> — 파일 21개, AWS 자원 44개를 코드로 정의했습니다. 셋째, 팀원은 <strong>포털 양식만 채우면</strong> 배포되게 하는 것입니다.</p>
+  </aside>
+</section>
+
+<!-- 5 예시 아키텍처와 비교 -->
+<section class="slide" data-sec="2" data-title="예시 아키텍처와 비교">
+  <h2 class="ttl">교수님 예시 구조와 우리 구성을 한 칸씩 맞췄다</h2>
+  <div class="fig">
+    <table class="tbl">
+      <colgroup><col style="width:23%"><col style="width:38%"><col style="width:39%"></colgroup>
+      <thead><tr><th>예시 아키텍처</th><th>우리 구성</th><th>상태 · 이유</th></tr></thead>
+      <tbody>
+        <tr><td class="k">Route 53 (DNS)</td><td>Cloudflare DNS + 기본 cloudfront.net 주소</td><td>사용 — 팀 도메인을 이미 Cloudflare에서 관리</td></tr>
+        <tr><td class="k">CloudFront + S3</td><td>CloudFront + S3 보관소의 site/ 칸</td><td class="st-on">운영 중 — 11/17 첫 배포</td></tr>
+        <tr><td class="k">ELB (고가용성)</td><td>쓰지 않음</td><td class="st-off">정적 사이트 + EC2 1대 조건이라 나눌 대상이 없음</td></tr>
+        <tr><td class="k">EC2 (VM)</td><td>포털 서버 EC2 (t3.small) · 소개 페이지 EC2 (t3.micro) + EBS</td><td class="st-ap">포털 서버 켜짐 · 소개 서버는 plan 검증까지</td></tr>
+        <tr><td class="k">RDS (Database)</td><td>쓰지 않음 — Terraform 상태는 S3 state/</td><td class="st-off">데모가 가상 데이터만 써서 저장할 사용자 데이터가 없음</td></tr>
+        <tr><td class="k">(예시에 없음)</td><td>IAM OIDC · Systems Manager · ECR · Budgets</td><td>키 없는 배포 · SSH 없는 관리 · 예산 알림</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <aside class="notes">
+    <p><em>(0:45 · 누적 2:45)</em></p>
+    <p>교수님 예시 구조와 저희 구성을 한 칸씩 맞춰 봤습니다.</p>
+    <p>Route 53 자리는 팀 도메인을 이미 관리하던 <strong>Cloudflare DNS</strong>가 맡습니다. CloudFront와 S3는 예시 그대로 쓰고, <strong>11월 17일부터 운영 중</strong>입니다.</p>
+    <p><strong>ELB는 쓰지 않았습니다.</strong> 정적 사이트이고 EC2는 한 대라는 조건이라 나눠 줄 대상이 없기 때문입니다. <strong>RDS도 쓰지 않았는데</strong>, 데모가 가상 데이터만 쓰기 때문입니다.</p>
+    <p>대신 예시에 없는 IAM OIDC, Systems Manager, 예산 알림을 더해 키 없는 배포와 SSH 없는 관리를 했습니다.</p>
+    <p><strong>질문이 오면:</strong> "왜 RDS와 ELB를 쓰지 않았나요?" → 저장할 사용자 데이터가 없고, EC2를 한 대로 하라는 조건에서 나눠 줄 대상이 없어서입니다. 인프라 상태는 S3 state/ 칸에 잠금과 함께 둡니다. · "Route 53 대신 Cloudflare는요?" → 도메인을 이미 Cloudflare에서 관리했고, Origin CA 인증서로 서버 HTTPS까지 같이 해결합니다.</p>
+  </aside>
+</section>
+
+<!-- 6 전체 구성도 -->
+<section class="slide" data-sec="2" data-title="전체 구성도">
+  <h2 class="ttl">전체 구성도 — 보는 길과 만드는 길</h2>
   <figure class="fig">
-    <svg viewBox="0 0 1696 670" role="img" aria-label="사용자가 DNS를 거쳐 정적 길은 CloudFront와 S3로, 동적 길은 EC2 서버로 간다. S3와 CloudFront, 포털용 EC2는 운영 중이고 소개 페이지용 EC2는 예정이다. ELB와 RDS는 쓰지 않는다.">
+    <svg viewBox="0 0 1696 770" role="img" aria-label="사용자는 CloudFront를 거쳐 S3 site 칸을 본다(운영 중). 팀원은 Backstage 포털에서 주문하고 GitHub Actions가 IAM OIDC 역할을 빌려 S3 bundles 칸에 설계도를 올리며, Systems Manager가 포털 서버 EC2에서 terraform을 실행해 소개 페이지 서버 EC2와 EBS를 만든다(plan 검증까지).">
+      <!-- AWS 영역 -->
+      <rect x="526" y="6" width="1166" height="758" rx="32" fill="none" stroke="#5B6491" stroke-width="3" stroke-dasharray="12 12"/>
+      <text class="s" x="560" y="52" style="font-weight:700">AWS 서울 리전 (ap-northeast-2)</text>
+
       <!-- 선 -->
-      <path class="ln" d="M198 300 H332" marker-end="url(#arw)"/>
-      <path class="ln" d="M498 300 H620"/>
-      <path class="ln" d="M620 150 V450"/>
-      <path class="ln" d="M620 150 H732" marker-end="url(#arw)"/>
-      <path class="ln" d="M620 450 H732" marker-end="url(#arw)"/>
-      <path class="ln" d="M898 150 H1142" marker-end="url(#arw)"/>
-      <path class="ln" d="M898 450 H1092" marker-end="url(#arw)"/>
-      <path class="ln plan" d="M1292 450 H1452" marker-end="url(#arw-m)"/>
-      <text class="b" x="640" y="126">정적</text>
-      <text class="b" x="640" y="502">동적</text>
-      <text class="s" x="1020" y="128" text-anchor="middle">site/ 칸만 읽음</text>
+      <path class="ln" d="M238 143 H566" marker-end="url(#arw)"/>
+      <path class="ln" d="M895 143 H964" marker-end="url(#arw)"/>
+      <path class="ln" d="M238 470 L266 440" marker-end="url(#arw)"/>
+      <path class="ln" d="M385 497 V558" marker-end="url(#arw)"/>
+      <path class="ln" d="M497 640 L566 650" marker-end="url(#arw)"/>
+      <path class="ln" d="M895 653 H964" marker-end="url(#arw)"/>
+      <path class="ln" d="M700 587 L1000 380" marker-end="url(#arw)"/>
+      <path class="ln" d="M1322 620 L1372 498" marker-end="url(#arw)"/>
+      <path class="ln" d="M1520 490 V558" marker-end="url(#arw)"/>
+      <path class="ln plan" d="M1322 300 L1372 345" marker-end="url(#arw-m)"/>
 
-      <!-- 사용자 -->
-      <rect class="base" x="42" y="222" width="156" height="156" rx="30"/>
-      <g class="ic"><circle cx="106" cy="284" r="16"/><path d="M76 338 q0 -30 30 -30 q30 0 30 30"/><circle cx="144" cy="292" r="12"/><path d="M146 312 q20 2 20 26"/></g>
-      <text class="t" x="120" y="418" text-anchor="middle">사용자</text>
+      <!-- 바깥 -->
+      <rect x="0" y="77" width="238" height="133" rx="26" fill="#DCE3EF"/>
+      <text class="b" x="119" y="138" text-anchor="middle">사용자</text><text class="s" x="119" y="180" text-anchor="middle">브라우저</text>
+      <rect class="on" x="0" y="245" width="238" height="147" rx="26"/>
+      <text class="b" x="119" y="298" text-anchor="middle" style="font-size:32px">Cloudflare</text><text class="s" x="119" y="336" text-anchor="middle">팀 도메인</text><text class="s" x="119" y="370" text-anchor="middle">DNS · 인증서</text>
+      <rect x="0" y="440" width="238" height="133" rx="26" fill="#DCE3EF"/>
+      <text class="b" x="119" y="518" text-anchor="middle">팀원 5명</text>
+      <rect class="on" x="273" y="350" width="224" height="147" rx="26"/>
+      <text class="b" x="385" y="412" text-anchor="middle" style="font-size:32px">Backstage</text><text class="s" x="385" y="452" text-anchor="middle">포털 · Authentik</text>
+      <rect class="on" x="273" y="566" width="224" height="147" rx="26"/>
+      <text class="b" x="385" y="628" text-anchor="middle" style="font-size:32px">GitHub</text><text class="s" x="385" y="668" text-anchor="middle">PR · Actions</text>
 
-      <!-- DNS -->
-      <rect class="base" x="342" y="222" width="156" height="156" rx="30"/>
-      <path class="ic" d="M420 258 L454 272 V304 Q454 330 420 344 Q386 330 386 304 V272 Z"/>
-      <text x="420" y="311" text-anchor="middle" style="font-family:var(--font-disp);font-size:24px;fill:#2B3463">DNS</text>
-      <text class="t" x="420" y="418" text-anchor="middle">DNS</text>
-      <text class="s" x="420" y="452" text-anchor="middle">Cloudflare · Route 53 생략</text>
-
-      <!-- CloudFront -->
-      <rect class="on" x="742" y="72" width="156" height="156" rx="30"/>
-      <g class="ic"><circle cx="820" cy="150" r="38"/><ellipse cx="820" cy="150" rx="16" ry="38"/><path d="M786 134 Q820 148 854 134"/><path d="M786 166 Q820 152 854 166"/></g>
-      <text class="t" x="820" y="268" text-anchor="middle">CloudFront</text>
-      <text class="s" x="820" y="302" text-anchor="middle">https 주소 · 운영 중</text>
-
-      <!-- S3 -->
-      <rect class="on" x="1152" y="72" width="156" height="156" rx="30"/>
-      <g class="ic"><path d="M1194 122 L1204 188 H1256 L1266 122"/><ellipse cx="1230" cy="122" rx="36" ry="10"/></g>
-      <text class="t" x="1230" y="268" text-anchor="middle">S3 · site/ 칸</text>
-      <text class="s" x="1230" y="302" text-anchor="middle">파일 81개 · 운영 중</text>
-
-      <!-- ELB 자리 -->
-      <rect class="off-box" x="742" y="372" width="156" height="156" rx="30"/>
-      <g class="ic off-ic"><circle cx="820" cy="450" r="38"/><circle cx="802" cy="450" r="5"/><circle cx="838" cy="430" r="5"/><circle cx="838" cy="450" r="5"/><circle cx="838" cy="470" r="5"/><path d="M807 450 L833 432 M807 450 H833 M807 450 L833 468"/></g>
-      <text class="t" x="820" y="568" text-anchor="middle">ELB</text>
-      <text class="s" x="820" y="602" text-anchor="middle">쓰지 않음 · 서버가 한 대</text>
-
-      <!-- EC2: 뒤(예정) + 앞(운영) -->
-      <rect class="plan-box" x="1138" y="338" width="156" height="156" rx="30"/>
-      <rect class="on" x="1102" y="372" width="156" height="156" rx="30"/>
-      <g class="ic"><rect x="1152" y="422" width="56" height="56" rx="6"/><path d="M1166 422 V408 M1180 422 V408 M1194 422 V408 M1166 478 V492 M1180 478 V492 M1194 478 V492 M1152 436 H1138 M1152 450 H1138 M1152 464 H1138 M1208 436 H1222 M1208 450 H1222 M1208 464 H1222"/></g>
-      <text class="t" x="1196" y="568" text-anchor="middle">EC2</text>
-      <text class="s" x="1196" y="602" text-anchor="middle">포털 운영 · 소개 서버 예정</text>
-
-      <!-- RDS 자리 -->
-      <rect class="off-box" x="1462" y="372" width="156" height="156" rx="30"/>
-      <g class="ic off-ic"><ellipse cx="1540" cy="422" rx="30" ry="11"/><path d="M1510 422 V478 A30 11 0 0 0 1570 478 V422"/><path d="M1510 450 A30 11 0 0 0 1570 450"/></g>
-      <text class="t" x="1540" y="568" text-anchor="middle">RDS</text>
-      <text class="s" x="1540" y="602" text-anchor="middle">쓰지 않음 · DB 없음</text>
+      <!-- 안쪽 -->
+      <rect class="on" x="573" y="77" width="322" height="133" rx="26"/>
+      <text class="b" x="734" y="136" text-anchor="middle">CloudFront</text><text class="s" x="734" y="178" text-anchor="middle">HTTPS · 캐시</text>
+      <rect class="on" x="972" y="70" width="350" height="301" rx="26"/>
+      <text class="b" x="1002" y="128">S3 보관소</text>
+      <g class="t" style="font-size:28px"><text x="1002" y="190">site/  사이트</text><text x="1002" y="240">bundles/  설계도 묶음</text><text x="1002" y="290">state/  상태 파일</text></g>
+      <rect class="base" x="573" y="587" width="322" height="133" rx="26"/>
+      <text class="b" x="734" y="646" text-anchor="middle" style="font-size:32px">IAM OIDC 역할</text><text class="s" x="734" y="688" text-anchor="middle">키 없이 잠깐 빌림</text>
+      <rect class="base" x="972" y="587" width="350" height="133" rx="26"/>
+      <text class="b" x="1147" y="646" text-anchor="middle" style="font-size:32px">Systems Manager</text><text class="s" x="1147" y="688" text-anchor="middle">SSM 문서 3개</text>
+      <rect class="base" x="1377" y="329" width="287" height="161" rx="26"/>
+      <text class="b" x="1520" y="400" text-anchor="middle" style="font-size:32px">EC2 포털 서버</text><text class="s" x="1520" y="444" text-anchor="middle">terraform 실행</text>
+      <rect class="try" x="1377" y="566" width="287" height="161" rx="26"/>
+      <text class="b" x="1520" y="636" text-anchor="middle" style="font-size:32px">EC2 + EBS</text><text class="s" x="1520" y="680" text-anchor="middle" style="fill:#2B3463">소개 페이지 서버</text>
 
       <!-- 범례 -->
-      <rect class="on" x="40" y="620" width="34" height="34" rx="9"/><text class="s" x="88" y="646">운영 중</text>
-      <rect class="plan-box" x="212" y="622" width="30" height="30" rx="8"/><text class="s" x="258" y="646">예정</text>
-      <rect class="off-box" x="346" y="620" width="34" height="34" rx="9"/><text class="s" x="394" y="646">쓰지 않음</text>
+      <rect class="on" x="0" y="622" width="30" height="30" rx="8"/><text class="s" x="42" y="646">운영 중</text>
+      <rect class="base" x="0" y="672" width="30" height="30" rx="8"/><text class="s" x="42" y="696">적용됨 11/17</text>
+      <rect class="try" x="0" y="722" width="30" height="30" rx="8"/><text class="s" x="42" y="746">plan 검증까지</text>
     </svg>
   </figure>
-  <p class="src">2026-11-24 저장소 기록 기준 · 서버 상태는 발표 전에 다시 확인</p>
   <aside class="notes">
-    <p><em>(1:30 · 누적 4:50)</em></p>
+    <p><em>(0:50 · 누적 3:35)</em></p>
     <p><strong>쉬운 말 세 줄</strong></p>
     <ul class="easy">
-      <li><strong>무엇이 어디에:</strong> 화면 파일은 S3라는 창고에 있고, CloudFront가 꺼내서 https 주소로 보여 줍니다. 서버(EC2)는 포털용 한 대가 있습니다.</li>
-      <li><strong>누가 무엇을:</strong> 누구나 주소로 화면을 봅니다. 창고 문은 CloudFront만 열 수 있습니다.</li>
-      <li><strong>무엇이 깨질 수 있나:</strong> 서버가 꺼지면 포털만 안 됩니다. 데모 화면은 서버와 상관없이 열립니다.</li>
+      <li><strong>무엇이 어디에:</strong> 화면 파일은 S3 site/ 칸에, 설계도 묶음은 bundles/ 칸에 있습니다. 서버(EC2)는 포털 서버 한 대가 켜져 있습니다.</li>
+      <li><strong>누가 무엇을:</strong> 누구나 CloudFront 주소로 화면을 봅니다. 팀원은 포털에서 주문만 하고, AWS에는 GitHub이 잠깐 빌린 역할로 들어갑니다.</li>
+      <li><strong>무엇이 깨질 수 있나:</strong> 포털 서버가 꺼지면 주문만 안 됩니다. 데모 화면은 서버와 상관없이 열립니다.</li>
     </ul>
-    <p><strong>질문이 오면:</strong> "ELB와 RDS는 왜 없나요?" → 서버가 한 대라 나눠 줄 곳이 없고, 저장할 사용자 데이터가 없어서입니다. 과제 안내도 EC2 한 대, Route 53 생략을 허용했습니다.</p>
-    <p>교수님이 주신 예시 그림에 저희 것을 그대로 올렸습니다. 왼쪽에서 사용자가 들어옵니다.</p>
-    <p>(위 줄) <strong>정적인 길</strong>입니다. 화면 파일은 S3에 있고 CloudFront가 https 주소로 내보냅니다. 초록색은 지금 돌고 있는 것입니다.</p>
-    <p>(아래 줄) <strong>동적인 길</strong>입니다. 서버 EC2가 한 대 돌고 있고, 소개 페이지용 서버 한 대는 점선, 예정입니다.</p>
-    <p>흐린 칸 두 개, <strong>ELB와 RDS는 쓰지 않았습니다.</strong> 안 쓴 것을 쓴 것처럼 그리지 않았습니다. DNS는 Route 53 대신 이미 가진 도메인의 Cloudflare를 씁니다.</p>
+    <p>전체 구성도입니다. <strong>길이 두 개</strong> 있습니다.</p>
+    <p>위쪽은 <strong>보는 길</strong>입니다. 사용자가 CloudFront 주소로 들어오면 S3 보관소의 site/ 칸에서 파일을 받아 갑니다. 초록색은 지금 운영 중인 것입니다.</p>
+    <p>아래쪽은 <strong>만드는 길</strong>입니다. 팀원이 Backstage 포털에서 주문하면 GitHub Actions가 OIDC 역할을 빌려 설계도 묶음을 S3에 올리고, Systems Manager가 포털 서버 EC2에서 terraform을 실행해 소개 페이지 서버를 만듭니다.</p>
+    <p>파란색은 11월 17일에 AWS에 적용된 것, 노란색인 소개 페이지 서버는 <strong>plan 검증까지</strong> 된 상태입니다.</p>
   </aside>
 </section>
 
-<!-- 6 서비스 흐름도 -->
+<!-- 7 서비스 흐름도 -->
 <section class="slide" data-sec="2" data-title="서비스 흐름도">
-  <h2 class="ttl">포털 양식 하나가 서버가 되기까지</h2>
-  <figure class="fig">
-    <svg viewBox="0 0 1696 540" role="img" aria-label="GitHub의 템플릿, 포털 양식, GitHub runner, S3 보관소, Systems Manager, EC2와 EBS 순서로 이어지는 배포 흐름. 템플릿과 보관소는 됨, 포털 양식과 runner와 Systems Manager는 시험 중, 서버는 예정.">
-      <g>
-        <rect class="on" x="0" y="20" width="230" height="200" rx="30"/>
-        <rect class="try" x="293" y="20" width="230" height="200" rx="30"/>
-        <rect class="try" x="586" y="20" width="230" height="200" rx="30"/>
-        <rect class="on" x="879" y="20" width="230" height="200" rx="30"/>
-        <rect class="try" x="1172" y="20" width="230" height="200" rx="30"/>
-        <rect class="plan-box" x="1467" y="22" width="227" height="196" rx="30"/>
-      </g>
-      <g class="b" text-anchor="middle" style="font-size:40px">
-        <text x="115" y="110">GitHub</text><text x="115" y="160">템플릿</text>
-        <text x="408" y="110">포털</text><text x="408" y="160">양식</text>
-        <text x="701" y="110">GitHub</text><text x="701" y="160">runner</text>
-        <text x="994" y="110">S3</text><text x="994" y="160">보관소</text>
-        <text x="1287" y="110">Systems</text><text x="1287" y="160">Manager</text>
-        <text x="1580" y="110">EC2</text><text x="1580" y="160">+ EBS</text>
-      </g>
-      <g>
-        <path class="ln" d="M240 120 H280" marker-end="url(#arw)"/>
-        <path class="ln" d="M533 120 H573" marker-end="url(#arw)"/>
-        <path class="ln" d="M826 120 H866" marker-end="url(#arw)"/>
-        <path class="ln" d="M1119 120 H1159" marker-end="url(#arw)"/>
-        <path class="ln plan" d="M1412 120 H1452" marker-end="url(#arw-m)"/>
-      </g>
-      <g class="t" text-anchor="middle" style="font-size:30px">
-        <text x="115" y="282">설계도 원본을</text><text x="115" y="322">저장소에 둠</text>
-        <text x="408" y="282">로그인하고</text><text x="408" y="322">네 칸을 채움</text>
-        <text x="701" y="282">검사하고</text><text x="701" y="322">묶어서 올림</text>
-        <text x="994" y="282">완성된 설계도를</text><text x="994" y="322">bundles/ 칸에</text>
-        <text x="1287" y="282">포털 서버에서</text><text x="1287" y="322">terraform 실행</text>
-        <text x="1580" y="282">소개 페이지 서버와</text><text x="1580" y="322">앱 디스크</text>
-      </g>
-      <g class="b" text-anchor="middle" style="font-size:30px">
-        <text x="115" y="394">됨</text>
-        <text x="408" y="394">시험 중</text>
-        <text x="701" y="394">첫 실행 전</text>
-        <text x="994" y="394">됨</text>
-        <text x="1287" y="394">미리 보기 확인</text>
-        <text x="1580" y="394">예정</text>
-      </g>
-      <rect class="on" x="0" y="478" width="34" height="34" rx="9"/><text class="s" x="48" y="504">됨</text>
-      <rect class="try" x="120" y="478" width="34" height="34" rx="9"/><text class="s" x="168" y="504">시험 · 확인 중</text>
-      <rect class="plan-box" x="400" y="480" width="30" height="30" rx="8"/><text class="s" x="446" y="504">예정</text>
-    </svg>
-  </figure>
-  <p class="src">2026-11-24 기준 · 미리 보기에서 만들어질 자원 5개를 확인(11/17) · docs/deploy-pipeline.md</p>
+  <h2 class="ttl">주문에서 서버까지, 여섯 단계</h2>
+  <div class="fig">
+    <div class="lanes">
+      <p class="lab">인프라 만들기 — Backstage 주문</p>
+      <ol class="steps">
+        <li style="background:#E4DEF4"><i>1</i><b>템플릿 원본</b><span>설계도 원본 커밋<br>PR마다 자동 검사</span></li>
+        <li class="st-on"><i>2</i><b>포털 양식</b><span>이름 · 주소<br>크기 · 디스크<br>plan / apply</span></li>
+        <li class="st-on"><i>3</i><b>설계도 PR</b><span>deployments/<br>&lt;이름&gt; 폴더<br>기록이 남는다</span></li>
+        <li class="st-ap"><i>4</i><b>GitHub runner</b><span>fmt · validate<br>OIDC 로그인<br>S3 bundles/</span></li>
+        <li class="st-ap"><i>5</i><b>Systems Manager</b><span>포털 서버에서<br>terraform 실행</span></li>
+        <li class="st-plan"><i>6</i><b>EC2 + EBS</b><span>사이트 받기<br>Cloudflare 주소</span></li>
+      </ol>
+      <p class="lab on" style="margin-top:14px">사이트 고치기 — 이미 운영 중인 길</p>
+      <ol class="chain">
+        <li style="background:#DCE3EF">main에 push</li>
+        <li style="background:#DCE3EF">scripts/deploy.sh</li>
+        <li class="st-on">S3 site/ 동기화</li>
+        <li class="st-on">CloudFront<br>캐시 비움</li>
+        <li class="st-on">공개 주소에 반영</li>
+      </ol>
+    </div>
+  </div>
+  <p class="src">deploy.sh는 main 최신 커밋에서만 돌고, 끝나면 docs/deploy-log.md에 한 줄을 남긴다</p>
   <aside class="notes">
-    <p><em>(1:30 · 누적 6:20)</em></p>
-    <p><strong>쉬운 말 세 줄</strong></p>
-    <ul class="easy">
-      <li><strong>무엇이 어디에:</strong> 서버 설계도 원본은 GitHub에, 값이 채워진 설계도는 S3의 bundles 칸에 있습니다. 실행은 포털 서버가 합니다.</li>
-      <li><strong>누가 무엇을:</strong> 팀원은 포털에서 양식만 냅니다. AWS 계정이 없어도 됩니다.</li>
-      <li><strong>무엇이 깨질 수 있나:</strong> 중간 한 곳이 막히면 서버가 안 생깁니다. 그래서 늘 "미리 보기"부터 돌립니다.</li>
-    </ul>
-    <p><strong>질문이 오면:</strong> "서버까지 실제로 만들어 봤나요?" → 11월 24일 기준으로는 미리 보기까지입니다. 만들어질 자원 다섯 개(서버, 디스크, 고정 IP, 보안 그룹, 디스크 붙이기)를 확인했습니다. <em>[발표 전에 실제 상태로 고칠 것]</em></p>
-    <p>이번에는 서버를 만드는 흐름입니다. 왼쪽부터 순서대로입니다.</p>
-    <p>설계도 원본은 GitHub에 있습니다. 팀원이 <strong>포털에 로그인해서 이름, 주소, 서버 크기, 디스크 크기 네 칸</strong>을 채웁니다.</p>
-    <p>그러면 GitHub runner가 설계도를 검사해서 S3에 올리고, AWS Systems Manager가 포털 서버에서 Terraform을 돌려 서버를 만듭니다.</p>
-    <p>색은 상태입니다. <strong>초록은 된 것, 노랑은 시험 중, 점선은 예정</strong>입니다. 이 길 전체가 끝까지 돈 것은 아직 아니고, 미리 보기까지 확인했습니다.</p>
+    <p><em>(0:45 · 누적 4:20)</em></p>
+    <p>주문이 서버가 되기까지는 <strong>여섯 단계</strong>입니다. 템플릿 원본이 커밋되고, 포털 양식을 채우면, 설계도가 PR로 기록되고, GitHub runner가 검사한 뒤 S3에 올리고, Systems Manager가 terraform을 돌려, EC2와 EBS가 생깁니다.</p>
+    <p>아래 줄은 <strong>사이트를 고칠 때의 길로, 이미 운영 중</strong>입니다. main에 올린 뒤 deploy.sh를 돌리면 S3에 동기화하고 CloudFront 캐시를 비웁니다. 이 스크립트는 main 최신 커밋에서만 돌고, 배포 기록을 한 줄 남깁니다.</p>
   </aside>
 </section>
 
-<!-- 7 기술 SPEC -->
+<!-- 8 기술 SPEC -->
 <section class="slide" data-sec="2" data-title="활용 기술 SPEC">
-  <h2 class="ttl">쓴 기술은 다섯 층입니다</h2>
+  <h2 class="ttl">활용 기술 SPEC</h2>
   <div class="fig">
-    <table class="band tight">
+    <table class="tbl">
+      <colgroup><col style="width:17%"><col style="width:55%"><col style="width:28%"></colgroup>
+      <thead><tr><th>구분</th><th>기술 · 버전</th><th>쓰임</th></tr></thead>
       <tbody>
-        <tr><th>화면</th><td>HTML · CSS · JavaScript, 빌드 도구 없음</td><td class="n">파일 81개</td></tr>
-        <tr><th>스크립트</th><td>Node.js(내 컴퓨터에서 보기) · Bash(배포)</td><td class="n">3개</td></tr>
-        <tr><th>설계도</th><td>Terraform 1.11.4</td><td class="n">자원 44개</td></tr>
-        <tr><th>AWS</th><td>S3 · CloudFront · EC2 · EBS · IAM · Systems Manager · ECR · Budgets</td><td class="n">서울 리전</td></tr>
-        <tr><th>포털 · 협업</th><td>Backstage · Authentik · Cloudflare · GitHub Actions · Jira</td><td class="n">워크플로 3개</td></tr>
+        <tr><td class="k">IaC</td><td>Terraform 1.11.4 · AWS provider 5.x</td><td>21개 .tf 파일, 자원 44개</td></tr>
+        <tr><td class="k">CI/CD</td><td>GitHub Actions — checkout v5 · setup-terraform v4 · configure-aws-credentials v6</td><td>검사 · 프로비저닝 · 포털 이미지</td></tr>
+        <tr><td class="k">포털 · 로그인</td><td>Backstage · Authentik (GitHub + TOTP) · GitHub App</td><td>인프라 주문 양식</td></tr>
+        <tr><td class="k">AWS</td><td>S3 · CloudFront · EC2 · EBS gp3 · SSM · IAM OIDC · ECR · Budgets</td><td>서울 리전</td></tr>
+        <tr><td class="k">DNS · 인증서</td><td>Cloudflare DNS · Cloudflare Origin CA</td><td>팀 도메인 HTTPS</td></tr>
+        <tr><td class="k">웹</td><td>HTML · CSS · JavaScript (프레임워크 없음) · Node.js 스크립트</td><td>site/ 파일 81개</td></tr>
+        <tr><td class="k">협업</td><td>Jira (KAN) · GitHub 이슈 · 서로 링크 (KAN-6 · KAN-8)</td><td>할 일 ↔ 코드 연결</td></tr>
+        <tr><td class="k">AI</td><td>Claude Code (코딩 에이전트)</td><td>설계도 · 문서 초안, 검토</td></tr>
       </tbody>
     </table>
   </div>
-  <p class="src">파이썬 · 자바 프레임워크와 서버 코드는 없습니다. 정적 사이트이기 때문입니다.</p>
   <aside class="notes">
-    <p><em>(0:50 · 누적 7:10)</em></p>
-    <p>쓴 기술을 다섯 층으로 정리했습니다.</p>
-    <p>화면은 <strong>HTML, CSS, 자바스크립트</strong>뿐이고 빌드 도구가 없습니다. 파일 81개를 그대로 올립니다.</p>
-    <p>AWS 자원은 <strong>Terraform</strong>으로 44개를 정의했습니다. 포털은 Backstage라는 오픈소스이고, 로그인은 Authentik이 맡습니다.</p>
-    <p>평가표에 있는 <strong>파이썬이나 자바 프레임워크는 쓰지 않았습니다.</strong> 서버에서 도는 코드가 없는 정적 사이트라서입니다.</p>
-    <p><strong>질문이 오면:</strong> "자바스크립트가 만 줄이 넘던데요?" → 화면 코드는 본 프로젝트 Floe에서 가져온 것이고, 이 저장소에서는 웹에서 AI 없이 돌도록 고쳤습니다.</p>
+    <p><em>(0:40 · 누적 5:00)</em></p>
+    <p>쓴 기술을 표로 정리했습니다. IaC는 <strong>Terraform 1.11.4</strong>, CI/CD는 <strong>GitHub Actions</strong>, 포털은 <strong>Backstage와 Authentik 로그인</strong>입니다.</p>
+    <p>AWS는 S3, CloudFront, EC2, EBS, Systems Manager, IAM OIDC, ECR, Budgets를 서울 리전에서 썼습니다. 웹은 프레임워크 없이 HTML, CSS, JavaScript 81개 파일이고, 협업은 Jira와 GitHub, AI는 Claude Code입니다.</p>
   </aside>
 </section>
 
-<!-- 8 데이터(DBMS) -->
-<section class="slide" data-sec="3" data-title="데이터 · DBMS">
-  <h2 class="ttl">DB는 없습니다. 데이터는 S3 세 칸에 둡니다</h2>
-  <figure class="fig">
-    <svg viewBox="0 0 1696 560" role="img" aria-label="S3 보관소 한 통이 site, bundles, state 세 칸으로 나뉜다. 옆에 인프라 상태를 두는 비공개 상태 버킷이 있고, EBS 디스크는 예정, RDS는 쓰지 않는다.">
-      <rect class="base" x="0" y="0" width="1100" height="560" rx="36"/>
-      <text class="b" x="44" y="72" style="font-size:44px">S3 보관소 한 통</text>
-      <rect class="card" x="40" y="116" width="320" height="404" rx="28"/>
-      <rect class="card" x="390" y="116" width="320" height="404" rx="28"/>
-      <rect class="card" x="740" y="116" width="320" height="404" rx="28"/>
-      <g class="b" style="font-size:52px">
-        <text x="72" y="204">site/</text><text x="422" y="204">bundles/</text><text x="772" y="204">state/</text>
-      </g>
-      <g class="t">
-        <text x="72" y="276">사이트 파일</text><text x="72" y="318">81개</text>
-        <text x="422" y="276">완성된 설계도</text><text x="422" y="318">묶음</text>
-        <text x="772" y="276">배포마다의</text><text x="772" y="318">Terraform 상태</text>
-      </g>
-      <g class="s">
-        <text x="72" y="430">CloudFront가 읽음</text><text x="72" y="466">밖으로 열리는 칸</text>
-        <text x="422" y="430">runner가 올리고</text><text x="422" y="466">서버가 받아 감</text>
-        <text x="772" y="430">잠금으로</text><text x="772" y="466">한 번에 한 사람</text>
-      </g>
-
-      <rect class="on" x="1160" y="0" width="536" height="170" rx="28"/>
-      <text class="b" x="1196" y="66">상태 버킷</text>
-      <text class="t" x="1196" y="112" style="font-size:27px">기초 인프라의 Terraform 상태</text>
-      <text class="t" x="1196" y="148" style="font-size:27px">비공개 · 버전 관리</text>
-
-      <rect class="plan-box" x="1162" y="197" width="532" height="166" rx="28"/>
-      <text class="b" x="1196" y="261">EBS 디스크 · 예정</text>
-      <text class="t" x="1196" y="307" style="font-size:27px">소개 페이지 서버가 받아 둘</text>
-      <text class="t" x="1196" y="343" style="font-size:27px">사이트 사본</text>
-
-      <rect class="off-box" x="1160" y="390" width="536" height="170" rx="28"/>
-      <text class="b" x="1196" y="456">RDS · 쓰지 않음</text>
-      <text class="t" x="1196" y="502" style="font-size:27px">저장할 사용자 데이터가</text>
-      <text class="t" x="1196" y="538" style="font-size:27px">없습니다</text>
-    </svg>
-  </figure>
-  <p class="src">표가 없어 ERD 대신 저장소 지도를 그렸습니다 · infra/main.tf</p>
+<!-- 9 언어 · DB -->
+<section class="slide" data-sec="3" data-title="언어 · DBMS">
+  <h2 class="ttl">DB 대신, 상태는 S3가 기억한다</h2>
+  <div class="fig">
+    <div class="split">
+      <div class="col">
+        <p class="lab">쓴 언어</p>
+        <div class="cards" style="grid-auto-rows:1fr">
+          <div style="background:#E4DEF4"><p style="margin:0"><b>HCL</b>&nbsp; <span>Terraform 설계도 21개 파일</span></p></div>
+          <div class="st-ap"><p style="margin:0"><b>Bash</b>&nbsp; <span>서버 시작 스크립트 · deploy.sh</span></p></div>
+          <div style="background:#E4DEF4"><p style="margin:0"><b>YAML</b>&nbsp; <span>workflow 3개 · Backstage 템플릿</span></p></div>
+          <div class="st-ap"><p style="margin:0"><b>HTML · CSS · JS</b>&nbsp; <span>site/ 81개 파일</span></p></div>
+          <div style="background:#E4DEF4"><p style="margin:0"><b>Node.js</b>&nbsp; <span>serve.mjs — 내 컴퓨터에서 보기</span></p></div>
+        </div>
+      </div>
+      <div class="col">
+        <p class="lab">DBMS를 쓰지 않은 이유</p>
+        <div class="cards"><div class="st-plan" style="font-size:30px">데모는 AI · 서버 없이 가상 데이터로 도는 연습 모드다. 가입 · 저장 기능이 없어 RDS에 둘 데이터가 없다.</div></div>
+        <p class="lab" style="margin-top:6px">대신 기억해야 할 것 = 인프라 상태</p>
+        <table class="tbl">
+          <colgroup><col style="width:28%"><col style="width:34%"><col style="width:38%"></colgroup>
+          <thead><tr><th>S3 칸</th><th>누가 쓰나</th><th>누가 읽나</th></tr></thead>
+          <tbody>
+            <tr><td class="k">site/</td><td>deploy.sh</td><td>CloudFront · 소개 서버</td></tr>
+            <tr><td class="k">bundles/</td><td>GitHub runner</td><td>SSM (포털 서버)</td></tr>
+            <tr><td class="k">state/</td><td>terraform</td><td>terraform (잠금)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
   <aside class="notes">
-    <p><em>(0:50 · 누적 8:00)</em></p>
-    <p><strong>쉬운 말 세 줄</strong></p>
-    <ul class="easy">
-      <li><strong>무엇이 어디에:</strong> 데이터는 S3 한 통의 세 칸에 있습니다. site는 화면, bundles는 설계도, state는 "지금 무엇이 만들어져 있는지" 적은 장부입니다.</li>
-      <li><strong>누가 무엇을:</strong> 밖에서는 site 칸만 CloudFront를 거쳐 봅니다. 나머지 두 칸은 밖에서 열리지 않습니다.</li>
-      <li><strong>무엇이 깨질 수 있나:</strong> state 장부가 지워지면 Terraform이 자기가 만든 것을 잊습니다. 그래서 버킷 맨 위를 통째로 맞추는 명령을 금지했습니다.</li>
-    </ul>
-    <p><strong>질문이 오면:</strong> "ERD는 어디 있나요?" → DB를 쓰지 않아 표가 없습니다. 그 대신 데이터가 놓이는 자리를 이 그림으로 냈습니다.</p>
-    <p>평가표에는 DBMS와 ERD가 있습니다. 솔직하게 말씀드리면 <strong>저희는 DB를 쓰지 않았습니다.</strong> 데모는 미리 넣은 예시로 돌고, 저장할 사용자 데이터가 없습니다.</p>
-    <p>대신 데이터가 놓이는 곳은 <strong>S3 한 통의 세 칸</strong>입니다. 화면 파일, 완성된 설계도, 그리고 Terraform의 상태입니다.</p>
-    <p>밖으로 열리는 칸은 site 하나뿐입니다. 설계도와 상태는 밖에서 볼 수 없습니다.</p>
+    <p><em>(0:45 · 누적 5:45)</em></p>
+    <p>언어는 다섯 가지입니다. 설계도는 HCL, 서버 스크립트는 Bash, 워크플로와 포털 양식은 YAML, 화면은 HTML·CSS·JS, 로컬 미리보기는 Node.js입니다.</p>
+    <p><strong>DBMS는 쓰지 않았습니다.</strong> 데모는 서버 없이 가상 데이터로 도는 연습 모드라 저장할 사용자 데이터가 없습니다.</p>
+    <p>대신 기억해야 할 것은 <strong>인프라 상태</strong>입니다. 그래서 ERD 대신 S3 보관소를 세 칸으로 나눈 지도를 보여 드립니다. site/는 사이트, bundles/는 설계도 묶음, state/는 terraform 상태 파일이고, 칸마다 쓰는 쪽과 읽는 쪽이 정해져 있습니다.</p>
   </aside>
 </section>
 
-<!-- 9 AI 활용 -->
+<!-- 10 AI 활용 -->
 <section class="slide" data-sec="3" data-title="AI 활용">
-  <h2 class="ttl">AI는 만들 때 쓰고, 웹 데모에서는 뺐습니다</h2>
-  <figure class="fig">
-    <svg viewBox="0 0 1696 560" role="img" aria-label="만들 때는 Claude Code가 초안을 쓰고 사람이 확인한 뒤 브랜치와 PR로 올린다. 보여 줄 때는 Floe 앱만 Claude를 부르고, 웹 데모는 AI를 부르지 않고 미리 넣은 연습 응답으로 돈다.">
-      <text class="b" x="0" y="46" style="font-size:40px">만들 때</text>
-      <rect class="base" x="0" y="74" width="340" height="130" rx="28"/>
-      <rect class="base" x="452" y="74" width="340" height="130" rx="28"/>
-      <rect class="on" x="904" y="74" width="340" height="130" rx="28"/>
-      <rect class="base" x="1356" y="74" width="340" height="130" rx="28"/>
-      <path class="ln" d="M350 139 H438" marker-end="url(#arw)"/>
-      <path class="ln" d="M802 139 H890" marker-end="url(#arw)"/>
-      <path class="ln" d="M1254 139 H1342" marker-end="url(#arw)"/>
-      <g text-anchor="middle">
-        <text class="b" x="170" y="132">Claude Code</text><text class="t" x="170" y="174" style="font-size:26px">코딩 에이전트</text>
-        <text class="b" x="622" y="132">초안</text><text class="t" x="622" y="174" style="font-size:26px">claude-drafted 표시</text>
-        <text class="b" x="1074" y="132">사람이 확인</text><text class="t" x="1074" y="174" style="font-size:26px">열어 보고 고침</text>
-        <text class="b" x="1526" y="132">브랜치 · PR</text><text class="t" x="1526" y="174" style="font-size:26px">병합은 사람이</text>
-      </g>
-      <text class="s" x="0" y="248">훅이 막는 것: AI의 main 푸시 · 비밀값이 든 커밋</text>
-
-      <text class="b" x="0" y="346" style="font-size:40px">보여 줄 때</text>
-      <rect class="base" x="0" y="374" width="340" height="130" rx="28"/>
-      <rect class="base" x="452" y="374" width="340" height="130" rx="28"/>
-      <rect class="base" x="904" y="374" width="340" height="130" rx="28"/>
-      <rect class="off-box" x="1356" y="374" width="340" height="130" rx="28"/>
-      <path class="ln" d="M350 439 H438" marker-end="url(#arw)"/>
-      <path class="ln plan" d="M1254 439 H1342"/>
-      <g text-anchor="middle">
-        <text class="b" x="170" y="432">Floe 앱</text><text class="t" x="170" y="474" style="font-size:26px">설치해서 쓰는 본 제품</text>
-        <text class="b" x="622" y="432">Claude</text><text class="t" x="622" y="474" style="font-size:26px">초안 · 대화</text>
-        <text class="b" x="1074" y="432">웹 데모</text><text class="t" x="1074" y="474" style="font-size:26px">이 저장소가 올린 것</text>
-        <text class="b" x="1526" y="432">AI 호출 없음</text><text class="t" x="1526" y="474" style="font-size:26px">미리 넣은 연습 응답</text>
-      </g>
-      <text class="s" x="0" y="548">정적 페이지에 API 키를 넣으면 페이지를 연 누구나 봅니다. 그래서 뺐습니다.</text>
-    </svg>
-  </figure>
-  <aside class="notes">
-    <p><em>(1:00 · 누적 9:00)</em></p>
-    <p>AI는 두 군데로 나눠 말씀드립니다.</p>
-    <p>(위 줄) <strong>만들 때</strong>입니다. 인프라 코드와 문서 초안은 Claude Code라는 코딩 에이전트가 썼습니다. AI가 쓴 곳에는 표시를 남기고, 사람이 열어 보고 고친 뒤에 올립니다. AI가 main에 바로 올리거나 비밀값을 커밋하면 훅이 막습니다.</p>
-    <p>(아래 줄) <strong>보여 줄 때</strong>입니다. 본 제품인 Floe 앱은 Claude를 불러 초안을 받습니다. 그런데 <strong>웹 데모에서는 AI를 뺐습니다.</strong> 정적 페이지에 API 키를 넣으면 누구나 볼 수 있기 때문입니다. 그래서 데모는 미리 넣은 예시 응답으로 돕니다.</p>
-    <p><strong>질문이 오면:</strong> "AI API, RAG, Agent 중 무엇인가요?" → 개발에는 Agent(Claude Code)를 썼고, 본 제품은 AI API를 씁니다. RAG는 쓰지 않았습니다. 이 웹 데모 자체는 AI를 부르지 않습니다.</p>
-  </aside>
-</section>
-
-<!-- 10 AWS ① 정적 호스팅 -->
-<section class="slide" data-sec="3" data-title="AWS 적용 ① 정적 호스팅">
-  <h2 class="ttl">파일을 올리면 주소가 됩니다</h2>
-  <figure class="fig">
-    <svg viewBox="0 0 1696 340" role="img" aria-label="내 컴퓨터에서 배포 스크립트로 S3의 site 칸에 올리면, CloudFront만 그 칸을 읽어 https 주소로 브라우저에 보여 준다.">
-      <rect class="base" x="0" y="110" width="260" height="200" rx="30"/>
-      <rect class="on" x="479" y="110" width="260" height="200" rx="30"/>
-      <rect class="on" x="958" y="110" width="260" height="200" rx="30"/>
-      <rect class="base" x="1436" y="110" width="260" height="200" rx="30"/>
-      <path class="ln" d="M272 210 H464" marker-end="url(#arw)"/>
-      <path class="ln" d="M751 210 H943" marker-end="url(#arw)"/>
-      <path class="ln" d="M1230 210 H1422" marker-end="url(#arw)"/>
-      <g text-anchor="middle">
-        <text class="b" x="130" y="204">내 컴퓨터</text><text class="t" x="130" y="250" style="font-size:27px">main 최신 커밋</text>
-        <text class="b" x="609" y="204">S3 · site/</text><text class="t" x="609" y="250" style="font-size:27px">비공개 버킷</text>
-        <text class="b" x="1088" y="204">CloudFront</text><text class="t" x="1088" y="250" style="font-size:27px">https 주소</text>
-        <text class="b" x="1566" y="204">브라우저</text><text class="t" x="1566" y="250" style="font-size:27px">누구나</text>
-      </g>
-      <g class="s" text-anchor="middle">
-        <text x="368" y="150">deploy.sh</text><text x="368" y="184">올리고 캐시 비움</text>
-        <text x="847" y="150">CloudFront만</text><text x="847" y="184">읽기 허용</text>
-        <text x="1326" y="150">폴더 주소도</text><text x="1326" y="184">index.html로</text>
-      </g>
-    </svg>
-  </figure>
-  <p class="say">2026-11-17 첫 배포. 파일 81개가 주소 하나로 열렸습니다.</p>
-  <p class="src">infra/main.tf · scripts/deploy.sh · docs/deploy-log.md</p>
-  <aside class="notes">
-    <p><em>(1:00 · 누적 10:00)</em></p>
-    <p><strong>쉬운 말 세 줄</strong></p>
-    <ul class="easy">
-      <li><strong>무엇이 어디에:</strong> 파일은 비공개 S3의 site 칸에 있고, 주소는 CloudFront가 줍니다.</li>
-      <li><strong>누가 무엇을:</strong> 올리기는 팀원이 배포 스크립트로 합니다. 읽기는 CloudFront만 합니다.</li>
-      <li><strong>무엇이 깨질 수 있나:</strong> main이 아닌 것을 올리면 저장소와 화면이 어긋납니다. 그래서 스크립트가 main 최신 커밋이 아니면 멈춥니다. 올린 직후 옛 화면이 보이면 캐시가 비워지는 1 ~ 5분을 기다립니다.</li>
-    </ul>
-    <p><strong>질문이 오면:</strong> "S3를 그냥 공개하면 되지 않나요?" → 그러면 https가 없고, 같은 통에 있는 설계도와 상태 칸까지 열릴 수 있습니다. 그래서 CloudFront만 site 칸을 읽게 했습니다.</p>
-    <p>AWS에 적용한 방법 첫째, 정적 호스팅입니다.</p>
-    <p>내 컴퓨터에서 <strong>배포 스크립트 한 줄</strong>을 치면 파일이 S3로 올라가고 캐시가 비워집니다. S3는 비공개이고, <strong>CloudFront만 읽을 수 있게</strong> 했습니다.</p>
-    <p>CloudFront가 https 주소를 주고, 폴더로 끝나는 주소도 index.html로 바꿔 줍니다. 11월 17일에 파일 81개를 처음 올렸고, 지금도 그 주소로 열립니다.</p>
-  </aside>
-</section>
-
-<!-- 11 AWS ② 권한 -->
-<section class="slide" data-sec="3" data-title="AWS 적용 ② 권한">
-  <h2 class="ttl">오래 가는 키 없이 서버를 만듭니다</h2>
+  <h2 class="ttl">AI는 만드는 과정에 썼다 — 데모 안에는 없다</h2>
   <div class="fig">
-    <table class="band tight">
-      <thead><tr><th>누가</th><th>무엇으로 들어가나</th><th>어디까지</th></tr></thead>
-      <tbody>
-        <tr><th>팀원</th><td>GitHub 로그인 + 일회용 번호</td><td>포털에서 양식 내기</td></tr>
-        <tr><th>포털</th><td>GitHub App</td><td>이 저장소 하나만</td></tr>
-        <tr><th>GitHub runner</th><td>실행하는 동안만 빌리는 역할(OIDC)</td><td>설계도 올리기 · 실행 부르기</td></tr>
-        <tr><th>배포 담당 둘</th><td>IAM 사용자 · 그룹 권한</td><td>Terraform으로 자원 만들기</td></tr>
-        <tr><th>바깥 누구나</th><td>Cloudflare를 거친 443 포트</td><td>화면 보기까지 · SSH는 없음</td></tr>
-      </tbody>
-    </table>
+    <div class="split wide-l">
+      <div class="col">
+        <p class="lab">Claude Code (에이전트)가 한 일</p>
+        <div class="cards" style="grid-auto-rows:1fr">
+          <div class="st-on"><b>설계도 · workflow 초안</b><span>파일 머리에 claude-drafted 표시를 남긴다</span></div>
+          <div class="st-ap"><b>커밋 25개 중 24개</b><span>Co-Authored-By 줄로 AI 공동 작성 표시</span></div>
+          <div class="st-on"><b>안전장치 훅</b><span>main 푸시 · force · 비밀값 커밋을 막는다</span></div>
+          <div class="st-ap"><b>문서 · 인수인계</b><span>next-steps · onboarding · deploy-pipeline</span></div>
+        </div>
+      </div>
+      <div class="col">
+        <p class="lab">AI 활용 종류</p>
+        <table class="tbl">
+          <colgroup><col style="width:30%"><col style="width:70%"></colgroup>
+          <thead><tr><th>종류</th><th>이 과제에서</th></tr></thead>
+          <tbody>
+            <tr><td class="k">Agent</td><td>Claude Code — 파일 · git · gh 실행</td></tr>
+            <tr><td class="k">AI API</td><td>웹 데모는 부르지 않음 (본 앱만)</td></tr>
+            <tr><td class="k">RAG</td><td>쓰지 않음</td></tr>
+          </tbody>
+        </table>
+        <div class="cards" style="flex:1"><div class="st-plan"><b>사람이 정하는 선</b><span style="color:var(--ink)">apply · 배포 · 병합은 사람이 한다.<br>AI는 plan · 검사까지.</span></div></div>
+      </div>
+    </div>
   </div>
-  <p class="src">infra/platform · infra/account · docs/deploy-pipeline.md 10절</p>
   <aside class="notes">
-    <p><em>(1:10 · 누적 11:10)</em></p>
-    <p><strong>쉬운 말 세 줄</strong></p>
-    <ul class="easy">
-      <li><strong>무엇이 어디에:</strong> 로그인은 Authentik이라는 로그인 서버가 맡고, 권한 표는 AWS IAM에 있습니다.</li>
-      <li><strong>누가 무엇을:</strong> 표 그대로입니다. 팀원은 양식까지, 배포 담당 두 명만 AWS 자원을 직접 만집니다.</li>
-      <li><strong>무엇이 깨질 수 있나:</strong> 저장소에 올릴 수 있는 팀원은 누구나 배포를 돌릴 수 있습니다. 팀 안에서 권한을 나누지 않기로 한 결정과 같은 범위입니다. 그래서 규칙 문서와 자동 검사로 지킵니다.</li>
-    </ul>
-    <p><strong>질문이 오면:</strong> "OIDC가 뭔가요?" → GitHub가 "이 실행은 이 저장소에서 왔다"는 증명서를 내면, AWS가 그걸 보고 잠깐 쓰는 출입증을 줍니다. 저장해 둔 키가 없으니 샐 키도 없습니다.</p>
-    <p>AWS에 적용한 방법 둘째는 권한입니다. 누가 어디까지 할 수 있는지를 표로 냈습니다.</p>
-    <p>핵심은 <strong>오래 가는 키를 어디에도 두지 않았다</strong>는 점입니다. GitHub runner는 실행하는 동안만 AWS 역할을 빌립니다. 포털은 이 저장소 하나만 다루는 GitHub App을 씁니다.</p>
-    <p>서버는 Cloudflare를 거친 443 포트만 열고, <strong>SSH는 아예 없습니다.</strong> 서버에 들어갈 때는 AWS Systems Manager로 들어갑니다.</p>
+    <p><em>(0:35 · 누적 6:20)</em></p>
+    <p>AI는 <strong>만드는 과정에 썼고, 데모 안에는 없습니다.</strong></p>
+    <p>Claude Code라는 코딩 에이전트가 설계도와 워크플로 초안을 쓰고, 파일 머리에 AI가 썼다는 표시를 남겼습니다. 저장소 커밋 25개 중 24개에 AI 공동 작성 표시가 있습니다.</p>
+    <p>또 훅이라는 안전장치로 main 직접 푸시, 강제 푸시, 비밀값 커밋을 막았습니다.</p>
+    <p>선은 분명히 그었습니다. <strong>apply, 배포, 병합은 사람이 하고, AI는 plan과 검사까지만</strong> 합니다.</p>
+    <p><strong>질문이 오면:</strong> "AI가 코드를 다 쓴 것 아닌가요?" → AI는 초안과 검사를 했고, 커밋마다 공동 작성 표시를 남겨 사람이 쓴 것과 구분했습니다. 실제 AWS에 적용하는 일은 사람만 하도록 훅과 규칙으로 막았습니다.</p>
+  </aside>
+</section>
+
+<!-- 11 Terraform 구조 -->
+<section class="slide" data-sec="3" data-title="Terraform 구조">
+  <h2 class="ttl">Terraform을 네 묶음으로 나눴다</h2>
+  <div class="fig">
+    <div class="cards c4" style="flex:1">
+      <div class="st-on" style="justify-content:flex-start"><code style="font-family:var(--font-code);font-size:26px">infra/</code><span>보관소 · CDN</span><span style="color:var(--ink);font-size:28px;margin-top:18px;line-height:1.5">· S3 보관소 (칸 셋)<br>· 암호화 · 버전 관리<br>· CloudFront · OAC<br>· 폴더 주소 함수</span><b style="margin-top:22px;font-size:50px;color:var(--sea)">자원 11</b><span>apply: 배포 담당 · 11/17</span></div>
+      <div class="st-ap" style="justify-content:flex-start"><code style="font-family:var(--font-code);font-size:26px">infra/platform/</code><span>플랫폼</span><span style="color:var(--ink);font-size:28px;margin-top:18px;line-height:1.5">· 포털 서버 EC2<br>· GitHub OIDC 역할<br>· SSM 문서 3개<br>· ECR · 서버 역할</span><b style="margin-top:22px;font-size:50px;color:var(--sea)">자원 19</b><span>apply: 배포 담당 · 11/17</span></div>
+      <div style="justify-content:flex-start;background:#E4DEF4"><code style="font-family:var(--font-code);font-size:26px">infra/account/</code><span>계정</span><span style="color:var(--ink);font-size:28px;margin-top:18px;line-height:1.5">· IAM 그룹 3개<br>· 팀원 사용자 5명<br>· MFA · 내 키 관리<br>· 예산 알림 $40</span><b style="margin-top:22px;font-size:50px;color:var(--sea)">자원 9</b><span>apply: 계정 주인 · 11/17</span></div>
+      <div class="st-plan" style="justify-content:flex-start"><code style="font-family:var(--font-code);font-size:26px">templates/floe-site/</code><span>배포 설계도</span><span style="color:var(--ink);font-size:28px;margin-top:18px;line-height:1.5">· EC2 · EBS<br>· 고정 IP · 보안 그룹<br>· 디스크 붙이기<br>· Backstage가 값 채움</span><b style="margin-top:22px;font-size:50px;color:var(--sea)">자원 5</b><span>Backstage → SSM · plan 검증</span></div>
+    </div>
+    <p class="goalbar" style="text-align:left;font-size:28px;line-height:1.5"><b>상태 파일</b>&nbsp; 비공개 상태 버킷 + 잠금 · 배포별은 보관소 state/&lt;이름&gt;/<br><b>커밋 안 함</b>&nbsp; *.tfstate · backend.tf · 값이 든 *.tfvars → *.tfvars.example만 올린다</p>
+  </div>
+  <aside class="notes">
+    <p><em>(0:40 · 누적 7:00)</em></p>
+    <p>Terraform은 <strong>네 묶음</strong>으로 나눴습니다. infra는 보관소와 CDN, platform은 포털 서버와 OIDC 역할과 SSM 문서, account는 IAM 그룹과 예산 알림, 그리고 templates는 Backstage가 값을 채우는 배포 설계도입니다.</p>
+    <p>나눈 이유는 <strong>바뀌는 빈도와 권한이 다르기 때문</strong>입니다. 계정 묶음은 계정 주인만 apply하고, 템플릿은 팀원이 포털로 씁니다.</p>
+    <p>상태 파일은 비공개 상태 버킷에 잠금과 함께 두고, 상태 파일과 값이 든 변수 파일은 커밋하지 않습니다.</p>
   </aside>
 </section>
 
 <!-- 12 배포 명령어 -->
 <section class="slide" data-sec="3" data-title="배포 명령어">
-  <h2 class="ttl">실제로 치는 명령은 이것뿐입니다</h2>
+  <h2 class="ttl">처음 한 번은 명령어, 그다음은 버튼</h2>
   <div class="fig">
-<pre class="cmd"><code><span class="c"># 처음 한 번: AWS 자원 만들기 (지워지는 줄이 보이면 멈춘다)</span>
-terraform -chdir=infra init
-terraform -chdir=infra plan
-terraform -chdir=infra apply
+    <div class="split">
+<pre class="cmd sm"><code><span class="c"># 1) 보관소 · CDN</span>
+cd infra
+terraform init
+terraform plan
+terraform apply
 
-<span class="c"># 사이트 올리기: main의 최신 커밋만</span>
-scripts/deploy.sh --dry-run
+<span class="c"># 2) 플랫폼 — 포털 서버 · OIDC · SSM</span>
+cd infra/platform
+terraform init
+terraform plan  -var "site_bucket_name=…"
+terraform apply -var "site_bucket_name=…"
+
+<span class="c"># 3) 사이트 올리기</span>
 scripts/deploy.sh
 
-<span class="c"># 서버 만들기: 포털 양식, 또는 같은 일을 명령으로</span>
-gh workflow run provision.yml -f deployment=&lt;이름&gt; -f action=plan</code></pre>
-  </div>
-  <p class="src">docs/aws-setup.md 3절 · .github/workflows/provision.yml</p>
-  <aside class="notes">
-    <p><em>(0:50 · 누적 12:00)</em></p>
-    <p><strong>쉬운 말 세 줄</strong></p>
-    <ul class="easy">
-      <li><strong>무엇이 어디에:</strong> 명령은 내 컴퓨터나 AWS CloudShell에서 칩니다. 설계도는 저장소의 infra 폴더에 있습니다.</li>
-      <li><strong>누가 무엇을:</strong> terraform apply는 배포 담당이, 한 번에 한 사람만 합니다. deploy.sh는 권한을 받은 팀원이 칩니다.</li>
-      <li><strong>무엇이 깨질 수 있나:</strong> plan 결과에 "지워지는 줄"이 있는데 그냥 apply 하면 돌고 있는 것이 사라집니다. 그래서 멈추고 팀에 묻습니다.</li>
-    </ul>
-    <p><strong>질문이 오면:</strong> "plan과 apply는 뭐가 다른가요?" → plan은 무엇이 만들어질지 미리 보여 주기만 하고, apply가 실제로 만듭니다.</p>
-    <p>배포에 쓰는 명령입니다. 세 묶음입니다.</p>
-    <p>처음 한 번은 <strong>Terraform으로 AWS 자원을 만듭니다.</strong> plan으로 미리 보고 apply로 만듭니다.</p>
-    <p>화면을 바꿀 때는 <strong>deploy.sh</strong> 한 줄입니다. dry-run을 붙이면 무엇이 올라갈지만 보여 줍니다.</p>
-    <p>서버는 포털 양식으로 만들고, 같은 일을 맨 아래 명령으로도 부를 수 있습니다.</p>
-  </aside>
-</section>
-
-<!-- 13 비용 -->
-<section class="slide" data-sec="3" data-title="클라우드 비용">
-  <h2 class="ttl">하루 1.3달러로 돌립니다</h2>
-  <figure class="fig">
-    <svg viewBox="0 0 1696 400" role="img" aria-label="하루 비용 막대. 포털 서버 0.62달러, 소개 페이지 서버 0.31달러 예정, 고정 IP 둘 0.24달러, 디스크 0.11달러.">
-      <g class="t" text-anchor="end">
-        <text x="524" y="74">포털 서버 · t3.small</text>
-        <text x="524" y="170">소개 페이지 서버 · t3.micro (예정)</text>
-        <text x="524" y="266">고정 IP 둘</text>
-        <text x="524" y="362">디스크 · gp3 36GB</text>
-      </g>
-      <path d="M552 30 H1442 a10 10 0 0 1 10 10 V86 a10 10 0 0 1 -10 10 H552 Z" fill="#4D66B5"/>
-      <path d="M552 126 H992 a10 10 0 0 1 10 10 V182 a10 10 0 0 1 -10 10 H552 Z" fill="#B8C9F0"/>
-      <path d="M552 222 H890 a10 10 0 0 1 10 10 V278 a10 10 0 0 1 -10 10 H552 Z" fill="#4D66B5"/>
-      <path d="M552 318 H702 a10 10 0 0 1 10 10 V374 a10 10 0 0 1 -10 10 H552 Z" fill="#4D66B5"/>
-      <line x1="550" y1="14" x2="550" y2="400" stroke="#5B6491" stroke-width="3"/>
-      <g class="b">
-        <text x="1476" y="76">$0.62</text>
-        <text x="1026" y="172">$0.31</text>
-        <text x="924" y="268">$0.24</text>
-        <text x="736" y="364">$0.11</text>
-      </g>
-    </svg>
-  </figure>
-  <p class="say">지금은 하루 약 $0.8입니다. 예산 알림은 월 $40, 발표 뒤에는 모두 지웁니다.</p>
-  <p class="src">docs/deploy-pipeline.md 8절 · 서울 리전 대략값 · S3와 CloudFront는 하루 몇 센트</p>
-  <aside class="notes">
-    <p><em>(0:40 · 누적 12:40)</em></p>
-    <p><strong>쉬운 말 세 줄</strong></p>
-    <ul class="easy">
-      <li><strong>무엇이 어디에:</strong> 돈은 거의 서버 두 대와 고정 IP에서 나갑니다. S3와 CloudFront는 이 크기에서 하루 몇 센트입니다.</li>
-      <li><strong>누가 무엇을:</strong> 예산의 절반, 그리고 전부에 닿으면 계정 주인에게 메일이 옵니다.</li>
-      <li><strong>무엇이 깨질 수 있나:</strong> 발표 뒤에 서버를 안 지우면 돈이 계속 나갑니다. 그래서 지우는 날을 정해 둡니다.</li>
-    </ul>
-    <p><strong>질문이 오면:</strong> "1.3달러는 실제 청구액인가요?" → 아닙니다. 요금표로 계산한 대략값입니다. <em>[발표 날 AWS 비용 화면의 숫자와 맞출 것]</em></p>
-    <p>비용입니다. 서버 한 대가 돌고 있는 지금은 <strong>하루 약 0.8달러</strong>이고, 소개 페이지 서버까지 만들면 <strong>1.3달러</strong>가 됩니다. 연한 막대가 아직 안 만든 서버입니다.</p>
-    <p>월 40달러에 예산 알림을 걸었고, 발표가 끝나면 Terraform으로 모두 지웁니다.</p>
-  </aside>
-</section>
-
-<!-- 14 소스 · 완성도 -->
-<section class="slide" data-sec="4" data-title="개발 소스 · 완성도">
-  <h2 class="ttl">소스는 12/01 밤 태그로 묶어 냅니다</h2>
-  <div class="fig">
-    <div class="board">
-      <section><h3>됨</h3><ul>
-        <li>데모 사이트 세 화면</li>
-        <li>공개 주소 (S3 + CloudFront)</li>
-        <li>Terraform 세 묶음 적용</li>
-        <li>IAM 그룹 셋 · 예산 알림</li>
-        <li>설계도 PR 자동 검사</li>
-        <li>포털 열림 (11/20)</li>
-      </ul></section>
-      <section><h3>진행 중</h3><ul>
-        <li>포털 로그인 연결</li>
-        <li>provision 첫 실행</li>
-        <li>서버 템플릿 다듬기</li>
-      </ul></section>
-      <section><h3>예정</h3><ul>
-        <li>소개 페이지 서버 (EC2 + EBS)</li>
-        <li>랜딩 · 온보딩 페이지</li>
-        <li>리허설 · 시연 녹화</li>
-        <li>동결 태그 (12/01 밤)</li>
-      </ul></section>
+<span class="c"># 4) 주소 확인</span>
+terraform -chdir=infra output -raw site_url</code></pre>
+      <div class="col">
+        <p class="lab">그다음은 GitHub Actions</p>
+        <div class="cards" style="grid-auto-rows:1fr">
+          <div class="st-on"><b style="font-family:var(--font-code);font-size:32px">terraform-check</b><span>PR마다 — fmt -check · validate · actionlint</span></div>
+          <div class="st-ap"><b style="font-family:var(--font-code);font-size:32px">provision</b><span>버튼 — plan · apply · destroy</span></div>
+          <div style="background:#E4DEF4"><b style="font-family:var(--font-code);font-size:32px">portal-image</b><span>Backstage 이미지 → ECR → SSM 재시작</span></div>
+          <div class="st-plan" style="text-align:center;font-size:30px">apply 전엔 항상 plan · 한 번에 한 사람</div>
+        </div>
+      </div>
     </div>
-    <p class="zip">소스 zip: <code>github.com/2026-Codyssey-Final-Proj/Floe-demo-page/archive/refs/tags/presentation-2026-12-02.zip</code></p>
   </div>
-  <p class="src">2026-11-24 기준 · GitHub 이슈 #20(전체 지도) · 태그를 단 뒤에 zip 주소가 열립니다</p>
   <aside class="notes">
-    <p><em>(0:50 · 누적 13:30)</em></p>
-    <p>소스 제출과 완성도입니다. 소스는 <strong>12월 1일 밤에 저장소를 얼리고 태그를 답니다.</strong> 그 태그의 zip을 그대로 제출합니다. 발표 날 배포가 깨지면 이 태그로 되돌립니다.</p>
-    <p>완성도는 세 칸으로 그대로 냈습니다. <strong>왼쪽이 된 것</strong>입니다. 데모 세 화면, 공개 주소, Terraform 세 묶음, 권한과 예산 알림, 자동 검사, 포털.</p>
-    <p>가운데는 진행 중, 오른쪽은 예정입니다. <em>[발표 전에 이 판을 실제 상태로 고칠 것. 저장소는 비공개라 zip은 로그인한 사람만 받습니다.]</em></p>
-    <p><strong>질문이 오면:</strong> "저장소 구조는요?" → site는 올라가는 화면, infra는 Terraform 설계도, templates는 포털이 쓰는 서버 설계도, scripts는 배포 스크립트, docs는 절차와 기록입니다.</p>
+    <p><em>(0:45 · 누적 7:45)</em></p>
+    <p><strong>처음 한 번은 명령어</strong>입니다. infra에서 terraform init, plan, apply로 보관소와 CDN을 만들고, platform에서 같은 순서로 포털 서버와 OIDC, SSM을 만들고, deploy.sh로 사이트를 올립니다.</p>
+    <p><strong>그다음부터는 버튼</strong>입니다. terraform-check는 PR마다 형식 검사와 validate를 돌리고, provision은 plan, apply, destroy를 버튼으로 고르고, portal-image는 포털 이미지를 다시 올립니다.</p>
+    <p>규칙은 하나입니다. <strong>apply 전엔 항상 plan, 그리고 한 번에 한 사람만.</strong></p>
   </aside>
 </section>
 
-<!-- 15 시연 ① 주소 -->
+<!-- 13 보안 설계 -->
+<section class="slide" data-sec="3" data-title="보안 설계">
+  <h2 class="ttl">오래 가는 키도, SSH도 없다</h2>
+  <div class="fig">
+    <div class="cards c2" style="flex:1;grid-auto-rows:1fr">
+      <div class="st-ap"><b>OIDC</b><p style="margin:14px 0 0;font-size:32px;line-height:1.4">GitHub runner는 실행할 때만<br>AWS 역할을 1시간 이하로 빌린다.</p><span>조건: 이 저장소의 브랜치 · aud = sts.amazonaws.com</span></div>
+      <div class="st-on"><b>Systems Manager</b><p style="margin:14px 0 0;font-size:32px;line-height:1.4">서버 문은 Cloudflare를 거친 443 하나.<br>명령은 SSM 문서 3개로만.</p><span>매개변수는 허용 모양(정규식)으로 막는다</span></div>
+      <div style="background:#E4DEF4"><b>S3 + OAC</b><p style="margin:14px 0 0;font-size:32px;line-height:1.4">버킷은 공개 차단.<br>CloudFront만 site/ 칸을 읽는다.</p><span>설계도 · 상태 파일은 밖에서 보이지 않는다</span></div>
+      <div class="st-plan"><b>IAM 그룹 · 예산</b><p style="margin:14px 0 0;font-size:32px;line-height:1.4">배포 담당 / 사이트 올리기 / 공통(MFA)<br>세 그룹으로 권한을 나눴다.</p><span>월 $40 예산, 50% · 100%에 메일</span></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><em>(0:40 · 누적 8:25)</em></p>
+    <p>보안의 핵심은 <strong>"오래 가는 키도, SSH도 없다"</strong>입니다.</p>
+    <p>GitHub runner는 실행할 때만 OIDC로 AWS 역할을 한 시간 이하로 빌리고, 이 저장소의 브랜치에서 온 요청만 허락합니다.</p>
+    <p>서버는 Cloudflare를 거친 443 포트 하나만 열고, 명령은 Systems Manager 문서 세 개로만 보냅니다.</p>
+    <p>S3는 공개를 막고 CloudFront만 site/ 칸을 읽어, 설계도와 상태 파일은 밖에서 보이지 않습니다. 마지막으로 IAM 그룹 셋과 월 40달러 예산 알림을 걸었습니다.</p>
+    <p><strong>질문이 오면:</strong> "OIDC가 액세스 키보다 왜 안전한가요?" → 액세스 키는 한 번 새면 지울 때까지 쓸 수 있습니다. OIDC는 실행마다 발급하는 토큰으로 역할을 잠깐만 빌리고, 이 저장소 브랜치에서 온 요청만 받습니다. 저장해 둘 키 자체가 없습니다.</p>
+  </aside>
+</section>
+
+<!-- 14 Backstage 포털 -->
+<section class="slide" data-sec="3" data-title="Backstage 포털">
+  <h2 class="ttl">팀원은 포털에서 양식만 채운다</h2>
+  <div class="fig">
+    <div class="split wide-l">
+      <div class="col">
+        <figure class="win">
+          <div class="bar">Backstage 포털 로그인 화면 (주소는 가림)</div>
+          <img src="shots/portal-login.jpg" alt="Backstage 포털 로그인 화면. Portal 머리 줄과 SIGN IN 단추가 있다. 로그인 서버 이름과 주소는 가렸다.">
+        </figure>
+        <p class="lab" style="margin:8px 0 0">가입 · 로그인 (Authentik)</p>
+        <ol class="join"><li>일회용 링크</li><li>GitHub 로그인</li><li>TOTP 등록</li><li>관리자 승인</li></ol>
+        <p class="say" style="margin:6px 0 0;font-size:28px;color:var(--mute)">연동은 GitHub App 하나 — 이 저장소만 다룬다. 팀원에게 AWS 계정이 없어도 배포할 수 있다.</p>
+      </div>
+      <div class="form">
+        <h4>만들기 › Floe 소개 페이지 서버</h4>
+        <label>배포 이름</label><div class="in">floe-demo</div>
+        <label>주소</label><div class="in">floe.&lt;팀 도메인&gt;</div>
+        <label>서버 크기</label><div class="in">t3.micro ▾</div>
+        <label>앱 디스크 (GB)</label><div class="in">8</div>
+        <label>실행</label><div class="btns"><span>미리 보기</span><span>만들기</span></div>
+        <small>templates/floe-site/template.yaml 의 양식 그대로</small>
+      </div>
+    </div>
+  </div>
+  <p class="src">로그인 화면은 2026-11-25에 접속해 찍었다 · 로그인 서버 이름 · 주소는 공개 저장소라 가렸다</p>
+  <aside class="notes">
+    <p><em>(0:40 · 누적 9:05)</em></p>
+    <p>팀원은 포털에서 양식만 채웁니다. 왼쪽은 <strong>실제 포털 로그인 화면</strong>이고, 11월 25일에 접속을 확인했습니다.</p>
+    <p>가입은 일회용 링크, GitHub 로그인, TOTP 등록, 관리자 승인 순서입니다. 포털은 이 저장소 하나만 다루는 GitHub App으로 연결돼 있어서, <strong>팀원에게 AWS 계정이 없어도 배포할 수 있습니다.</strong></p>
+    <p>오른쪽 양식이 실제 템플릿 파일의 칸 그대로입니다. 배포 이름, 주소, 서버 크기, 디스크를 넣고 미리 보기를 먼저 누릅니다.</p>
+    <p><strong>질문이 오면:</strong> "그냥 Actions 버튼만 써도 되지 않나요?" → Actions 버튼은 저장소 권한이 있어야 누를 수 있고 값을 직접 적어야 합니다. Backstage는 정해진 양식만 보여 주고, 주문마다 설계도 PR로 기록을 남깁니다.</p>
+  </aside>
+</section>
+
+<!-- 15 저장소 · 완성도 -->
+<section class="slide" data-sec="4" data-title="저장소 · 완성도">
+  <h2 class="ttl">저장소 지도와 완성도</h2>
+  <div class="fig">
+    <div class="split" style="grid-template-columns:0.8fr 1.2fr">
+      <dl class="tree">
+        <dt>infra/</dt><dd>보관소 · CDN</dd>
+        <dt>infra/platform/</dt><dd>포털 서버 · OIDC · SSM</dd>
+        <dt>infra/account/</dt><dd>IAM · 예산</dd>
+        <dt>templates/</dt><dd>Backstage 설계도</dd>
+        <dt>.github/workflows/</dt><dd>CI/CD 3개</dd>
+        <dt>site/</dt><dd>데모 · 소개 페이지</dd>
+        <dt>scripts/</dt><dd>serve · deploy</dd>
+        <dt>docs/</dt><dd>절차 · 기록 · 온보딩</dd>
+      </dl>
+      <div class="col" style="justify-content:space-between">
+        <div class="state st-on"><h3 style="color:#2F6B4F">운영 중</h3><ul><li>공개 주소 3화면 — 11/25 응답 200</li><li>Backstage 로그인 — 11/25 응답 200</li><li>terraform-check — 4번 중 4번 통과</li></ul></div>
+        <div class="state st-ap"><h3 style="color:var(--sea)">적용 · 검증</h3><ul><li>AWS 3묶음 apply — 11/17</li><li>템플릿 plan: 자원 5개 추가 — 11/17</li><li>포털 EC2 — SSM Online</li></ul></div>
+        <div class="state st-plan"><h3 style="color:#8A5A1E">남은 것 (12/01 동결 전)</h3><ul><li>provision 첫 성공 (11/25 OIDC 실패)</li><li>소개 페이지 EC2 + EBS apply</li><li>소스 zip = 태그 presentation-2026-12-02</li></ul></div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><em>(0:35 · 누적 9:40)</em></p>
+    <p>소스는 저장소 하나에 있습니다. 왼쪽이 폴더 지도입니다.</p>
+    <p>완성도는 <strong>세 칸으로 솔직하게</strong> 나눴습니다. 운영 중인 것은 공개 주소 세 화면과 포털 로그인, 그리고 네 번 모두 통과한 자동 검사입니다.</p>
+    <p>적용·검증된 것은 AWS 세 묶음 apply와 템플릿 plan 시험입니다.</p>
+    <p>남은 것은 provision의 첫 성공 실행과 소개 페이지 서버 apply이고, 12월 1일 동결 전까지 하려 합니다. 제출 소스는 동결 태그로 묶습니다. <em>[발표 전에 실제 상태로 고칠 것]</em></p>
+  </aside>
+</section>
+
+<!-- 16 시연 1 — 공개 주소 -->
 <section class="slide" data-sec="5" data-title="시연 ① 공개 주소">
-  <h2 class="ttl">주소 하나로 열립니다</h2>
+  <h2 class="ttl">시연 1 — 공개 주소에서 바로 열린다</h2>
   <div class="fig">
-    <div class="wins">
+    <p class="urlbar">https://d2ai5qb4183u6q.cloudfront.net</p>
+    <div class="wins three">
       <figure class="win">
-        <div class="bar">d2ai5qb4183u6q.cloudfront.net</div>
+        <div class="bar">/</div>
         <img src="shots/entry.jpg" alt="시연 입구 화면. 3분 시연 시작과 Floe 소개 보기 단추가 있다.">
-        <figcaption>시연 입구: 여기서 데모와 소개로 갑니다</figcaption>
+        <figcaption>시연 입구</figcaption>
       </figure>
       <figure class="win">
-        <div class="bar">d2ai5qb4183u6q.cloudfront.net/intro/</div>
-        <img src="shots/intro.jpg" alt="Floe 소개 페이지 첫 화면. Floe 이름과 길잡이 물범 플로로 그림이 있다.">
-        <figcaption>소개 페이지: Floe가 무엇인지 한 장에</figcaption>
+        <div class="bar">/intro/</div>
+        <img src="shots/intro.jpg" alt="Floe 소개 페이지 첫 화면.">
+        <figcaption>소개 페이지</figcaption>
+      </figure>
+      <figure class="win">
+        <div class="bar">/navigator/</div>
+        <img src="shots/nav-all.jpg" alt="연습 데모 첫 화면. 플로로가 만들고 싶은 것을 묻는다.">
+        <figcaption>연습 데모 (AI 없이)</figcaption>
       </figure>
     </div>
+    <ol class="order"><li>주소 열기</li><li>소개 페이지</li><li>연습 데모 3분</li><li>휴대폰에서도</li></ol>
   </div>
-  <p class="src">https://d2ai5qb4183u6q.cloudfront.net · 2026-11-24에 이 주소에서 찍은 화면</p>
   <aside class="notes">
-    <p><em>(1:10 · 누적 14:40 · 시연)</em></p>
-    <p>이제 실행 결과입니다. <strong>(브라우저로 넘어가 주소를 직접 연다. 인터넷이 안 되면 이 장의 사진으로 말한다.)</strong></p>
-    <p>이 주소가 AWS에 올라간 결과입니다. 왼쪽이 시연 입구이고, 오른쪽이 소개 페이지입니다. 주소 끝에 intro를 붙이면 열립니다.</p>
-    <p>휴대폰에서도 같은 주소로 열립니다.</p>
+    <p><em>(3:00 · 누적 12:40 · 시연)</em></p>
+    <p>이제 시연입니다. <strong>이 주소를 열면 지금도 바로 열립니다.</strong></p>
+    <p>첫 화면은 시연 입구, 두 번째는 Floe 소개 페이지, 세 번째는 AI 없이 도는 연습 데모입니다.</p>
+    <p><strong>(주소 열기 → 소개 페이지 훑기 → 연습 데모 3분 시연 → 휴대폰 화면 크기에서도 열리는 것 보여 주기. 인터넷이 안 되면 이 장의 사진으로 말한다.)</strong></p>
     <p><strong>질문이 오면:</strong> "주소가 왜 이렇게 생겼나요?" → 도메인을 따로 사지 않고 CloudFront가 주는 기본 주소와 인증서를 그대로 썼습니다.</p>
   </aside>
 </section>
 
-<!-- 16 시연 ② 연습 데모 -->
-<section class="slide" data-sec="5" data-title="시연 ② 연습 데모">
-  <h2 class="ttl">연습 데모는 AI 없이 여덟 장면을 걷습니다</h2>
+<!-- 17 시연 2 — 파이프라인: media/portal-demo.mp4 가 있으면 재생되고, 없으면 "녹화본 자리"가 보인다 (찍는 법은 README.md) -->
+<section class="slide" data-sec="5" data-title="시연 ② 파이프라인" data-rec>
+  <h2 class="ttl">시연 2 — 포털 주문이 서버가 되기까지</h2>
   <div class="fig">
-    <div class="wins">
-      <figure class="win">
-        <div class="bar">/navigator/ · 처음</div>
-        <img src="shots/nav-all.jpg" alt="데모 첫 화면. 플로로가 원하는 것을 알려 달라고 하고 예시 단추가 있다.">
-        <figcaption>만들고 싶은 것을 말하면</figcaption>
+    <div class="split" style="grid-template-columns:1.05fr 1fr;align-items:center">
+      <figure class="rec" style="height:auto;width:100%">
+        <video src="media/portal-demo.mp4" preload="metadata" muted playsinline controls hidden aria-label="포털에서 템플릿을 고르고 미리 보기를 실행해 설계도 PR과 Actions 요약, plan 결과가 나오는 녹화본"></video>
+        <div class="slot">녹화본 자리 (1 ~ 2분)<br>1 템플릿 고르기 → 2 미리 보기(plan)<br>→ 3 설계도 PR → 4 Actions 요약<br>→ 5 plan 결과</div>
       </figure>
-      <figure class="win">
-        <div class="bar">/navigator/ · 1단계</div>
-        <img src="shots/nav-ex0.jpg" alt="데모 1단계 화면. 이번엔 얼마나 크게 만들까요 하고 묻고 선택지 네 개가 있다.">
-        <figcaption>할 일을 하나씩, 고를 수 있게 줍니다</figcaption>
-      </figure>
+      <div class="col" style="justify-content:center">
+        <p class="lab">실제 실행 기록</p>
+        <div class="log"><h4>11/17 &nbsp;템플릿 plan 시험 (SSM)</h4>floe-demo-terraform → plan<br><span class="ok">+ EC2 · EBS · 고정 IP</span><br><span class="ok">+ 보안 그룹 · 디스크 붙이기</span><br>결과: 5개 추가, 오류 없음</div>
+        <div class="log"><h4>11/25 &nbsp;provision 첫 실행 (Actions)</h4><span class="ok">✓ 입력 확인</span><br><span class="ok">✓ fmt · validate</span><br><span class="no">✗ AWS 역할 빌리기 (OIDC) — 거부</span><br><span class="m">→ 22장: 원인 찾는 중, 발표 전 다시</span></div>
+      </div>
     </div>
   </div>
-  <p class="src">https://d2ai5qb4183u6q.cloudfront.net/navigator/ · 예시 데이터로만 돕니다</p>
+  <p class="src"><span class="rec-no">녹화본은 리허설 뒤에 넣습니다 · 라이브는 서버를 실제로 만들어 비용 · 시간이 들어 녹화본으로 한다</span><span class="rec-yes" hidden>미리 찍어 둔 녹화본입니다 · 기다리는 시간은 잘라 냈습니다</span></p>
   <aside class="notes">
-    <p><em>(1:30 · 누적 16:10 · 시연)</em></p>
-    <p><strong>(입구에서 "3분 시연 시작"을 누른다. 예시 답을 하나 고르고, 다음 장면으로 두세 번 넘긴다.)</strong></p>
-    <p>이게 Floe의 연습용 데모입니다. 만들고 싶은 것을 말하면, 플로로가 <strong>할 일을 하나씩</strong> 줍니다. 답은 고르기만 하면 됩니다.</p>
-    <p>단계를 넘어가기 전에는 아까 보신 것처럼 "이해되셨나요?"를 묻습니다.</p>
-    <p>여기서 중요한 점은, <strong>이 데모가 AI를 부르지 않는다</strong>는 것입니다. 전부 미리 넣은 예시로 돕니다. 그래서 서버 없이 S3와 CloudFront만으로 올릴 수 있었습니다.</p>
-  </aside>
-</section>
-
-<!-- 17 시연 ③ 포털: media/portal-demo.mp4 가 있으면 재생되고, 없으면 "녹화본 자리"가 보인다 (찍는 법은 README.md) -->
-<section class="slide" data-sec="5" data-title="시연 ③ 포털 녹화본" data-rec>
-  <h2 class="ttl">포털에 양식을 내면 서버가 생깁니다</h2>
-  <div class="fig">
-    <figure class="rec">
-      <video src="media/portal-demo.mp4" preload="metadata" muted playsinline controls hidden aria-label="포털에서 양식을 내고 미리 보기를 거쳐 서버를 만드는 녹화본"></video>
-      <div class="slot">녹화본 자리<br>포털 양식 → 미리 보기 → 만들기 → 열린 주소</div>
-    </figure>
-  </div>
-  <p class="src"><span class="rec-no">녹화본은 리허설 뒤에 넣습니다 · 2026-11-24 기준으로는 미리 보기까지 확인</span><span class="rec-yes" hidden>미리 찍어 둔 녹화본입니다 · 기다리는 시간은 잘라 냈습니다</span></p>
-  <aside class="notes">
-    <p><em>(1:30 · 누적 17:40 · 녹화본)</em></p>
-    <p><strong>[녹화본은 이 장에 오면 저절로 재생된다(소리 없음). 멈춤 · 다시 재생은 영상 아래 단추. 파일이 없으면 "녹화본 자리"만 보인다. 찍는 법은 저장소 README.]</strong></p>
-    <p><strong>쉬운 말 세 줄</strong></p>
-    <ul class="easy">
-      <li><strong>무엇이 어디에:</strong> 포털은 Backstage라는 화면입니다. 양식은 저장소의 templates 폴더에서 나옵니다.</li>
-      <li><strong>누가 무엇을:</strong> 로그인한 팀원이 이름, 주소, 서버 크기, 디스크 크기를 넣습니다.</li>
-      <li><strong>무엇이 깨질 수 있나:</strong> "실제로 만들기"는 진짜 서버를 만들고 돈이 듭니다. 그래서 처음에는 늘 "미리 보기"를 고릅니다.</li>
-    </ul>
-    <p>마지막 시연은 포털입니다. 서버를 실제로 만드는 데 몇 분이 걸려서 <strong>미리 찍어 둔 녹화본</strong>으로 보여 드립니다.</p>
-    <p>(영상을 따라 말한다) 양식에 네 칸을 채우고 "미리 보기"를 누르면, 무엇이 만들어질지 GitHub Actions 요약에 나옵니다. 맞으면 같은 양식으로 "실제로 만들기"를 누르고, 끝나면 주소가 열립니다.</p>
-    <p><strong>질문이 오면:</strong> "만드는 데 얼마나 걸리나요?" → <em>[녹화할 때 잰 시간으로 답할 것]</em> · "왜 라이브가 아닌가요?" → 서버를 만드는 몇 분 동안 발표가 멈추고, 그때마다 비용이 들어서입니다.</p>
+    <p><em>(2:30 · 누적 15:10 · 녹화본 1:30 포함)</em></p>
+    <p><strong>[녹화본은 이 장에 오면 저절로 재생된다(소리 없음). 파일이 없으면 "녹화본 자리"만 보인다. 찍는 법은 저장소 README.]</strong></p>
+    <p>두 번째 시연은 <strong>포털 주문이 서버가 되는 과정</strong>입니다. 라이브로 하면 실제 서버가 만들어져 시간과 비용이 들어서 녹화본으로 보여 드립니다.</p>
+    <p><strong>(녹화본 재생: 템플릿 고르기 → 미리 보기 → 설계도 PR → Actions 요약 → plan 결과)</strong></p>
+    <p>오른쪽은 실제 실행 기록입니다. 11월 17일 Systems Manager로 돌린 plan에서는 EC2, EBS, 고정 IP, 보안 그룹, 디스크 붙이기 <strong>다섯 개가 오류 없이</strong> 나왔습니다.</p>
+    <p>11월 25일 GitHub Actions에서 처음 돌린 provision은 입력 확인과 설계도 검사는 통과했지만, <strong>AWS 역할을 빌리는 단계에서 거부</strong>됐습니다. 이 부분은 22장에서 말씀드리겠습니다.</p>
+    <p><strong>질문이 오면:</strong> "provision이 실패했는데 파이프라인이 동작한다고 할 수 있나요?" → 같은 설계도를 Systems Manager로 직접 돌린 plan은 11월 17일에 성공했습니다. Actions에서 AWS 역할을 빌리는 연결 고리가 11월 25일 첫 실행에서 거부됐고, 고치는 중입니다. 발표 날 결과를 그대로 말씀드리겠습니다.</p>
   </aside>
 </section>
 
 <!-- 18 팀 역할 -->
 <section class="slide" data-sec="6" data-title="팀별 역할">
-  <h2 class="ttl">다섯 명이 이렇게 나눴습니다</h2>
+  <h2 class="ttl">다섯 명이 나눠 맡았다</h2>
   <div class="fig">
-    <table class="band tight">
+    <table class="tbl">
+      <colgroup><col style="width:12%"><col style="width:25%"><col style="width:26%"><col style="width:37%"></colgroup>
+      <thead><tr><th>이름</th><th>역할</th><th>Jira 담당 일감</th><th>한 일 · 산출물</th></tr></thead>
       <tbody>
-        <tr><th>이재엽</th><td>AWS 계정 · 기초 빌드, 발표 자료, 리허설</td><td class="n">KAN-19 · 15 · 7 · 17</td></tr>
-        <tr><th>송해광</th><td>포털(Backstage) · 로그인 · runner · 템플릿 · 배포</td><td class="n">KAN-9 · 11 · 12 · 18 외</td></tr>
-        <tr><th>박민혁</th><td>데모 랜딩 페이지 · 소개 페이지</td><td class="n">KAN-13 · 4</td></tr>
-        <tr><th>오성준</th><td>앱 온보딩 조사 · 온보딩 페이지</td><td class="n">KAN-14 · 1</td></tr>
-        <tr><th>김주경</th><td>발표 대본</td><td class="n">KAN-16</td></tr>
+        <tr><td class="k">이재엽</td><td>PM · 발표 · AWS 바탕</td><td>KAN-2 · 6 · 7 · 8 · 15 · 17 · 19</td><td>AWS 3묶음 apply · Jira 연동 · 문서 · 발표 자료</td></tr>
+        <tr><td class="k">송해광</td><td>배포 파이프라인 · Terraform · Backstage</td><td>KAN-5 · 9 · 10 · 11 · 12 · 18 · 20~26</td><td>Backstage + Authentik 포털 개통 (11/20) · 계정 승인 · 인증서 · DNS</td></tr>
+        <tr><td class="k">오성준</td><td>실제 인프라 배포</td><td>KAN-1 · 14</td><td>온보딩 방식 정리 · 데모 온보딩 페이지</td></tr>
+        <tr><td class="k">김주경</td><td>데모 페이지</td><td>KAN-16</td><td>데모 페이지 · 발표 대본</td></tr>
+        <tr><td class="k">박민혁</td><td>랜딩 페이지</td><td>KAN-4 · 13</td><td>소개 · 랜딩 페이지</td></tr>
       </tbody>
     </table>
+    <p class="goalbar" style="font-size:30px">담당 · 마감 · 상태는 Jira가 원천 — GitHub 이슈 #20이 다섯 명의 일을 한 장에 비춘다</p>
   </div>
-  <p class="src">발표 이재엽 · 시연 이재엽 · 일감 번호는 Jira(KAN) · GitHub 이슈 #20, 2026-11-20 기준</p>
   <aside class="notes">
-    <p><em>(0:50 · 누적 18:30)</em></p>
-    <p>역할입니다. 할 일은 Jira에 일감으로 두고 사람마다 나눴습니다. 오른쪽 번호가 Jira 일감 번호입니다.</p>
-    <p>이재엽은 AWS 계정과 기초 빌드, 발표 자료를 맡았습니다. 송해광은 포털과 로그인, 배포 길을 맡았습니다. 박민혁은 랜딩과 소개 페이지, 오성준은 온보딩 페이지, 김주경은 발표 대본을 맡았습니다.</p>
-    <p>발표자와 시연자는 모두 이재엽입니다.</p>
-    <p><strong>질문이 오면:</strong> "참여도는 어떻게 보나요?" → Jira 일감의 담당과 상태, 그리고 GitHub의 PR과 커밋에 남아 있습니다.</p>
+    <p><em>(0:45 · 누적 15:55)</em></p>
+    <p>다섯 명이 나눠 맡았습니다. 저는 PM과 발표, 그리고 AWS 바탕 세 묶음 apply와 Jira 연동, 문서를 맡았습니다.</p>
+    <p>송해광 님은 배포 파이프라인과 Terraform, Backstage를 맡아 <strong>Backstage와 Authentik 로그인 포털을 11월 20일에 열었고</strong>, 팀원 계정 승인과 인증서, DNS를 맡았습니다.</p>
+    <p>오성준 님은 실제 인프라 배포와 온보딩, 김주경 님은 데모 페이지와 발표 대본, 박민혁 님은 소개·랜딩 페이지를 맡았습니다.</p>
+    <p>담당과 마감, 상태는 모두 Jira가 원천이고, GitHub 이슈 20번이 다섯 명의 일을 한 장에 비춥니다.</p>
+    <p><strong>질문이 오면:</strong> "커밋이 한 계정에 몰려 있는데 팀원은 무엇을 했나요?" → 송해광 님의 Backstage · Authentik 포털은 저장소가 아니라 별도 서버에서 운영돼 커밋에 드러나지 않습니다. 할 일과 담당은 Jira에서 관리했습니다(25개 중 송해광 13 · 이재엽 7 · 박민혁 2 · 오성준 2 · 김주경 1). <em>[팀원별 실제 산출물 한 줄씩 — 발표 전 채움]</em></p>
   </aside>
 </section>
 
-<!-- 19 GitHub 활용 -->
-<section class="slide" data-sec="7" data-title="GitHub 활용">
-  <h2 class="ttl">할 일은 Jira에, 코드는 PR로</h2>
+<!-- 19 실제 Jira 보드 -->
+<section class="slide" data-sec="7" data-title="Jira 보드">
+  <h2 class="ttl">할 일의 원천은 Jira 보드 하나</h2>
   <div class="fig">
-    <div class="nums">
-      <div><b>23</b><span>커밋</span></div>
-      <div><b>5</b><span>PR · 4개 병합</span></div>
-      <div><b>20</b><span>이슈 · 6개 닫음</span></div>
-      <div><b>4</b><span>자동 검사 · 모두 통과</span></div>
+    <div class="split" style="grid-template-columns:0.95fr 1fr">
+      <figure class="shot-tall">
+        <img src="shots/jira-board.jpg" alt="Jira AWS2026(KAN) 보드 화면. 해야 할 일 5, 진행 중 2, 검토 중 1, 완료 7 네 칸에 일감 카드가 있다.">
+        <figcaption>Jira AWS2026 (KAN) 보드 — 2026-11-25 화면</figcaption>
+      </figure>
+      <div class="col" style="justify-content:center;gap:22px">
+        <p class="lab" style="margin:0">일감 25개 = 에픽 10 + 작업 15</p>
+        <div class="four">
+          <div style="background:#DCE3EF"><b>5</b><span>해야 할 일</span></div>
+          <div class="st-ap"><b>2</b><span>진행 중</span></div>
+          <div style="background:#E4DEF4"><b>1</b><span>검토 중</span></div>
+          <div class="st-on"><b>7</b><span>완료</span></div>
+        </div>
+        <p class="mini">보드 위 작업 15개 기준 · 에픽 10개는 진행 3 · 완료 1 · 해야 할 일 6</p>
+        <p class="lab" style="margin:10px 0 0">담당 25개 — 사람별</p>
+        <dl class="bars">
+          <dt>송해광</dt><dd><i style="width:calc(13 / 13 * 78%)"></i>13</dd>
+          <dt>이재엽</dt><dd><i style="width:calc(7 / 13 * 78%)"></i>7</dd>
+          <dt>박민혁</dt><dd><i style="width:calc(2 / 13 * 78%)"></i>2</dd>
+          <dt>오성준</dt><dd><i style="width:calc(2 / 13 * 78%)"></i>2</dd>
+          <dt>김주경</dt><dd><i style="width:calc(1 / 13 * 78%)"></i>1</dd>
+        </dl>
+      </div>
     </div>
-    <p class="say">브랜치 이름에 KAN-번호를 넣으면 Jira 일감에 저절로 붙습니다.</p>
   </div>
-  <p class="src">2026-11-24 기준 · gh pr list · gh issue list · gh run list로 센 숫자</p>
   <aside class="notes">
-    <p><em>(0:40 · 누적 19:10)</em></p>
-    <p>가점 항목인 GitHub 활용입니다. 숫자는 11월 24일에 센 것입니다. <em>[발표 전에 다시 셀 것. 세는 명령은 slides/README.md]</em></p>
-    <p>커밋 23개, PR 5개 중 4개 병합, 이슈 20개입니다. 이슈는 Jira 일감과 하나씩 짝을 지어, 할 일은 Jira에서 보고 논의는 GitHub에서 합니다.</p>
-    <p><strong>브랜치와 PR 제목에 Jira 번호를 넣으면</strong> 그 일감에 코드가 저절로 붙습니다. 누가 무슨 일로 무엇을 고쳤는지가 이어집니다.</p>
-    <p><em>(솔직히 말할 것: 지금 커밋은 모두 한 계정에서 올라갔습니다. 팀원 PR이 들어오면 숫자가 바뀝니다. PR 리뷰 기록은 아직 0건입니다.)</em></p>
+    <p><em>(0:45 · 누적 16:40)</em></p>
+    <p>저희 팀의 할 일은 모두 <strong>이 Jira 보드 하나</strong>에서 나옵니다. 11월 25일 실제 화면입니다.</p>
+    <p>일감은 25개로, 에픽 10개와 작업 15개입니다. 보드의 작업은 해야 할 일 5, 진행 중 2, 검토 중 1, 완료 7개입니다.</p>
+    <p>담당은 송해광 님이 13개로 가장 많고, 포털과 인증, 러너, 템플릿처럼 인프라 일이 몰려 있습니다. 저는 7개, 박민혁 님과 오성준 님이 2개씩, 김주경 님이 1개입니다.</p>
   </aside>
 </section>
 
-<!-- 20 CI/CD -->
-<section class="slide" data-sec="7" data-title="CI/CD">
-  <h2 class="ttl">올리면 검사하고, 누르면 배포합니다</h2>
+<!-- 20 Jira 협업 흐름 -->
+<section class="slide" data-sec="7" data-title="Jira 협업 흐름">
+  <h2 class="ttl">Jira 일감 하나가 배포까지 가는 길</h2>
   <figure class="fig">
-    <svg viewBox="0 0 1696 548" role="img" aria-label="자동화 네 줄. PR이나 main에 올리면 terraform-check가 돌고 4번 모두 통과했다. 포털 버튼을 누르면 provision이 돌지만 첫 실행 전이다. 포털 앱을 고치면 portal-image가 돌지만 첫 실행 전이다. 이 덱을 올리면 파일을 검사한 뒤 GitHub Pages로 게시하고, 11월 24일부터 돌고 있다.">
-      <g>
-        <rect class="base" x="0" y="0" width="400" height="116" rx="26"/>
-        <rect class="card" x="470" y="0" width="800" height="116" rx="26"/>
-        <rect class="on" x="1340" y="0" width="356" height="116" rx="26"/>
-        <path class="ln" d="M410 58 H456" marker-end="url(#arw)"/>
-        <path class="ln" d="M1280 58 H1326" marker-end="url(#arw)"/>
-        <text class="t" x="200" y="69" text-anchor="middle">설계도 PR을 올리면</text>
-        <text class="b" x="506" y="52">terraform-check</text>
-        <text class="s" x="506" y="92">fmt · validate · actionlint</text>
-        <text class="t" x="1518" y="69" text-anchor="middle">4번 모두 통과</text>
+    <svg viewBox="0 0 1696 470" role="img" aria-label="1 Jira 일감, 2 GitHub 이슈, 3 브랜치, 4 커밋과 PR 제목, 5 자동 검사, 6 리뷰와 병합, 7 Jira 링크, 8 배포와 기록 순서로 이어지는 협업 흐름.">
+      <!-- 위 줄 1 → 4 -->
+      <rect x="0" y="0" width="379" height="170" rx="26" fill="#E4DEF4"/>
+      <rect x="439" y="0" width="379" height="170" rx="26" fill="#E4DEF4"/>
+      <rect class="base" x="878" y="0" width="379" height="170" rx="26"/>
+      <rect class="base" x="1317" y="0" width="379" height="170" rx="26"/>
+      <!-- 아래 줄 5 ← 8 -->
+      <rect class="on" x="1317" y="280" width="379" height="170" rx="26"/>
+      <rect class="on" x="878" y="280" width="379" height="170" rx="26"/>
+      <rect x="439" y="280" width="379" height="170" rx="26" fill="#E4DEF4"/>
+      <rect class="try" x="0" y="280" width="379" height="170" rx="26"/>
+      <!-- 선 -->
+      <path class="ln" d="M382 85 H433" marker-end="url(#arw)"/>
+      <path class="ln" d="M821 85 H872" marker-end="url(#arw)"/>
+      <path class="ln" d="M1260 85 H1311" marker-end="url(#arw)"/>
+      <path class="ln" d="M1506 173 V274" marker-end="url(#arw)"/>
+      <path class="ln" d="M1314 365 H1263" marker-end="url(#arw)"/>
+      <path class="ln" d="M875 365 H824" marker-end="url(#arw)"/>
+      <path class="ln" d="M436 365 H385" marker-end="url(#arw)"/>
+      <!-- 번호 -->
+      <g fill="#4D66B5">
+        <circle cx="60" cy="85" r="30"/><circle cx="499" cy="85" r="30"/><circle cx="938" cy="85" r="30"/><circle cx="1377" cy="85" r="30"/>
+        <circle cx="1377" cy="365" r="30"/><circle cx="938" cy="365" r="30"/><circle cx="499" cy="365" r="30"/><circle cx="60" cy="365" r="30"/>
       </g>
-      <g transform="translate(0 144)">
-        <rect class="base" x="0" y="0" width="400" height="116" rx="26"/>
-        <rect class="card" x="470" y="0" width="800" height="116" rx="26"/>
-        <rect class="try" x="1340" y="0" width="356" height="116" rx="26"/>
-        <path class="ln" d="M410 58 H456" marker-end="url(#arw)"/>
-        <path class="ln" d="M1280 58 H1326" marker-end="url(#arw)"/>
-        <text class="t" x="200" y="69" text-anchor="middle">포털 버튼을 누르면</text>
-        <text class="b" x="506" y="52">provision</text>
-        <text class="s" x="506" y="92">검사 → S3에 묶음 → 서버에서 terraform</text>
-        <text class="t" x="1518" y="69" text-anchor="middle">첫 실행 전</text>
+      <g text-anchor="middle" style="font-family:var(--font-disp);font-size:30px;fill:#F2F5FA">
+        <text x="60" y="96">1</text><text x="499" y="96">2</text><text x="938" y="96">3</text><text x="1377" y="96">4</text>
+        <text x="1377" y="376">5</text><text x="938" y="376">6</text><text x="499" y="376">7</text><text x="60" y="376">8</text>
       </g>
-      <g transform="translate(0 288)">
-        <rect class="base" x="0" y="0" width="400" height="116" rx="26"/>
-        <rect class="card" x="470" y="0" width="800" height="116" rx="26"/>
-        <rect class="try" x="1340" y="0" width="356" height="116" rx="26"/>
-        <path class="ln" d="M410 58 H456" marker-end="url(#arw)"/>
-        <path class="ln" d="M1280 58 H1326" marker-end="url(#arw)"/>
-        <text class="t" x="200" y="69" text-anchor="middle">포털 앱을 고치면</text>
-        <text class="b" x="506" y="52">portal-image</text>
-        <text class="s" x="506" y="92">빌드 → ECR → 포털 다시 켜기</text>
-        <text class="t" x="1518" y="69" text-anchor="middle">첫 실행 전</text>
+      <g class="b" style="font-size:34px">
+        <text x="108" y="76">Jira 일감</text><text x="547" y="76">GitHub 이슈</text><text x="986" y="76">브랜치</text><text x="1425" y="76">커밋 · PR 제목</text>
+        <text x="1425" y="356">자동 검사</text><text x="986" y="356">리뷰 · 병합</text><text x="547" y="356">Jira 링크</text><text x="108" y="356">배포 · 기록</text>
       </g>
-      <g transform="translate(0 432)">
-        <rect class="base" x="0" y="0" width="400" height="116" rx="26"/>
-        <rect class="card" x="470" y="0" width="800" height="116" rx="26"/>
-        <rect class="on" x="1340" y="0" width="356" height="116" rx="26"/>
-        <path class="ln" d="M410 58 H456" marker-end="url(#arw)"/>
-        <path class="ln" d="M1280 58 H1326" marker-end="url(#arw)"/>
-        <text class="t" x="200" y="69" text-anchor="middle">이 발표 덱을 올리면</text>
-        <text class="b" x="506" y="52">GitHub Pages</text>
-        <text class="s" x="506" y="92">파일 검사 → github.io에 게시</text>
-        <text class="t" x="1518" y="69" text-anchor="middle">11/24부터 게시</text>
+      <g class="s" style="font-size:26px">
+        <text x="108" y="122">KAN-n · 담당 · 마감</text><text x="547" y="122">같은 제목 · #20 지도</text><text x="986" y="122" style="font-family:var(--font-code)">KAN-n-설명</text><text x="1425" y="122" style="font-family:var(--font-code)">KAN-n 타입(범위)</text>
+        <text x="1425" y="402" style="font-family:var(--font-code)">terraform-check</text><text x="986" y="402">Closes #이슈</text><text x="547" y="402">일감 ↔ 거울 이슈</text><text x="108" y="402">deploy-log 한 줄</text>
       </g>
-
     </svg>
+    <p class="eg"><b>실제 예 &nbsp;KAN-10 포털 주소 고침</b><br>브랜치 <code>KAN-10-portal-hostname</code> → PR #24 → terraform-check ✓ (PR · main 2번) → 병합 11/18</p>
   </figure>
-  <p class="src">Floe-demo-page와 이 덱 저장소의 .github/workflows · 2026-11-24 기준 실행 기록(gh run list)</p>
   <aside class="notes">
-    <p><em>(0:50 · 누적 20:00)</em></p>
-    <p><strong>쉬운 말 세 줄</strong></p>
-    <ul class="easy">
-      <li><strong>무엇이 어디에:</strong> 검사와 배포의 순서는 저장소 .github/workflows 폴더의 파일 셋에 적혀 있습니다.</li>
-      <li><strong>누가 무엇을:</strong> 설계도를 고친 PR이면 누가 열든 검사가 저절로 돕니다. 배포는 포털 버튼이나 GitHub Actions 화면에서 부릅니다.</li>
-      <li><strong>무엇이 깨질 수 있나:</strong> provision은 아직 한 번도 끝까지 돌지 않았습니다. 첫 실행에서 권한이 모자라다는 오류가 날 수 있습니다.</li>
-    </ul>
-    <p><strong>질문이 오면:</strong> "CD가 실제로 도나요?" → 검사(CI)는 네 번 돌아 모두 통과했습니다. 배포(CD)는 같은 길을 손으로 미리 보기까지 확인했고, 자동 실행은 아직입니다. <em>[발표 전에 실제 상태로 고칠 것]</em></p>
-    <p>CI/CD입니다. 줄마다 왼쪽이 "언제", 가운데가 "무엇이 도는지", 오른쪽이 "지금 상태"입니다.</p>
-    <p>첫 줄, <strong>설계도나 워크플로를 고친 PR을 열면 검사가 저절로 돕니다.</strong> 네 번 돌아 네 번 통과했습니다. 이게 CI입니다.</p>
-    <p>둘째 줄이 CD입니다. 포털 버튼을 누르면 설계도를 검사하고, S3에 올리고, 서버에서 Terraform을 돌립니다. 파일은 다 있고 첫 실행을 앞두고 있습니다.</p>
-    <p>마지막 줄, <strong>이 발표 자료도 같은 방식입니다.</strong> 덱 저장소의 main에 올리면 파일을 검사하고 GitHub Pages로 저절로 게시합니다. 지금 보시는 github.io 주소가 그 결과입니다.</p>
+    <p><em>(0:40 · 누적 17:20)</em></p>
+    <p>저희가 일한 방식은 <strong>이 여덟 칸</strong>입니다. Jira에 일감을 만들고, 같은 제목의 GitHub 이슈를 만들고, 브랜치와 커밋, PR 제목 앞에 KAN 키를 붙입니다.</p>
+    <p>그러면 자동 검사가 돌고, 병합하면 이슈가 닫힙니다. Jira 일감과 GitHub 이슈는 서로 링크로 이어져 있어 어느 쪽에서든 따라갈 수 있습니다. 배포하면 기록에 한 줄을 남깁니다.</p>
+    <p>실제 예로, <strong>KAN-10 포털 주소 오타</strong>는 같은 이름의 브랜치에서 PR 24번으로 올라가 자동 검사를 PR과 main에서 두 번 통과한 뒤 11월 18일에 병합됐습니다.</p>
   </aside>
 </section>
 
-<!-- 21 배운 것 · 끝 -->
-<section class="slide" data-sec="7" data-title="배운 것 · 끝">
-  <h2 class="ttl">배운 것 셋</h2>
+<!-- 21 GitHub 숫자 -->
+<section class="slide" data-sec="7" data-title="GitHub 숫자">
+  <h2 class="ttl">숫자로 본 협업 (11/10 ~ 11/25)</h2>
   <div class="fig">
-    <div class="rows">
-      <div><b>같이 쓰는 통은 칸부터 나눈다</b><span>배포가 설계도까지 지울 뻔했다</span></div>
-      <div><b>키를 두지 않으면 샐 키도 없다</b><span>runner는 실행할 때만 역할을 빌린다</span></div>
-      <div><b>권한을 못 나누면 약속과 검사로</b><span>규칙 문서 · 훅 · PR 자동 검사</span></div>
+    <div class="split wide-l">
+      <dl class="bars big" style="align-content:center">
+        <dt>커밋 (main)</dt><dd><i style="width:calc(25 / 25 * 80%)"></i>25</dd>
+        <dt>GitHub 이슈</dt><dd><i style="width:calc(20 / 25 * 80%)"></i>20</dd>
+        <dt>병합한 PR</dt><dd><i style="width:calc(7 / 25 * 80%)"></i>7</dd>
+        <dt>Actions 실행</dt><dd><i style="width:calc(5 / 25 * 80%)"></i>5</dd>
+      </dl>
+      <div class="cards" style="grid-auto-rows:1fr">
+        <div style="background:#E4DEF4"><b>Jira 일감</b><span>25개 — 완료 8 · 진행 6 · 할 일 11</span></div>
+        <div class="st-on"><b>terraform-check</b><span>4번 중 4번 통과</span></div>
+        <div class="st-plan"><b>provision</b><span>1번 실행 · OIDC에서 멈춤</span></div>
+        <div class="st-ap"><b>브랜치 이름</b><span>KAN- 키 붙인 브랜치 6개</span></div>
+      </div>
     </div>
-    <div class="bye"><b>감사합니다. 질문 받겠습니다.</b><span>d2ai5qb4183u6q.cloudfront.net</span></div>
+  </div>
+  <p class="src">2026-11-25 기준 · gh pr list · gh issue list · gh run list · git log origin/main(병합 커밋 제외) · Jira 보드</p>
+  <aside class="notes">
+    <p><em>(0:30 · 누적 17:50)</em></p>
+    <p>숫자로 보면, 11월 10일부터 25일까지 <strong>main 커밋 25개, GitHub 이슈 20개, 병합한 PR 7개, Actions 실행 5번</strong>입니다. <em>[발표 전날 다시 셀 것]</em></p>
+    <p>Jira 일감은 25개로 완료 8, 진행 6, 할 일 11이고, KAN 키를 붙인 브랜치가 여섯 개입니다. terraform-check는 네 번 중 네 번 통과했고, provision은 한 번 돌아 OIDC 단계에서 멈췄습니다.</p>
+  </aside>
+</section>
+
+<!-- 22 트러블슈팅 · 교훈 -->
+<section class="slide" data-sec="7" data-title="트러블슈팅 · 교훈">
+  <h2 class="ttl">막혔던 곳 넷, 그리고 배운 것</h2>
+  <div class="fig">
+    <table class="tbl">
+      <colgroup><col style="width:26%"><col style="width:22%"><col style="width:28%"><col style="width:24%"></colgroup>
+      <thead><tr><th>문제</th><th>원인</th><th>한 일</th><th>배운 것</th></tr></thead>
+      <tbody>
+        <tr><td class="k" style="font-size:28px">배포가 설계도 · 상태를 지울 위험</td><td>버킷 맨 위를 sync --delete</td><td>site/ · bundles/ · state/ 칸 나눔, CloudFront는 site/만</td><td>저장 공간도 칸을 설계한다</td></tr>
+        <tr><td class="k" style="font-size:28px">포털 주소 오타 (potal)</td><td>문서 · 설정 · 기본값 여러 곳</td><td>PR #24 한 번에, CI 통과 뒤 병합</td><td>같은 값은 한 곳에서</td></tr>
+        <tr><td class="k" style="font-size:28px">provision 첫 실행 실패 (11/25)</td><td>OIDC 역할 빌리기 거부</td><td>신뢰 조건 · Secrets의 역할 · 계정 대조 중</td><td>첫 실행은 plan으로, 로그로 지점 찾기</td></tr>
+        <tr><td class="k" style="font-size:28px">nginx 보안 취약점 공개 (11/18)</td><td>포털 서버 nginx 1.30.6</td><td>1.30.7 이상으로 올리기로 함</td><td>서버를 띄우면 패치 책임도 생긴다</td></tr>
+      </tbody>
+    </table>
+    <div class="bye"><b>반복해서 쓸 인프라는 코드로 — 감사합니다. 질문 받겠습니다.</b></div>
   </div>
   <aside class="notes">
-    <p><em>(0:40 · 누적 20:40)</em></p>
-    <p><em>[이 세 줄은 저장소 기록에서 뽑은 초안이다. 리허설 뒤에 팀이 실제로 느낀 것으로 바꾼다.]</em></p>
-    <p>마지막으로 배운 것 세 가지입니다.</p>
-    <p>첫째, <strong>같이 쓰는 저장 통은 칸부터 나눠야 합니다.</strong> 처음에는 배포 스크립트가 통 전체를 맞췄는데, 그러면 설계도와 상태까지 지워집니다. 그래서 칸을 셋으로 나눴습니다.</p>
-    <p>둘째, <strong>키를 저장해 두지 않으면 샐 키도 없습니다.</strong></p>
-    <p>셋째, 저희는 팀원 권한을 나누지 않았습니다. 대신 <strong>규칙 문서와 자동 검사로 사고를 막았습니다.</strong></p>
-    <p>감사합니다. 질문 받겠습니다. <em>(답은 60초 안에: 결론 한 줄, 근거 하나, 가리킬 장)</em></p>
+    <p><em>(1:00 · 누적 18:50)</em></p>
+    <p>막혔던 곳 넷입니다.</p>
+    <p>첫째, 처음 배포 스크립트가 버킷 맨 위를 삭제 동기화해서, 같은 버킷의 설계도와 상태 파일을 지울 위험이 있었습니다. <strong>버킷을 세 칸으로 나누고 CloudFront는 site/만 읽게</strong> 바꿨습니다.</p>
+    <p>둘째, 포털 주소 오타가 문서, 설정, 기본값 여러 곳에 퍼져 있어서 PR 하나로 한 번에 고쳤습니다.</p>
+    <p>셋째, provision 첫 실행이 OIDC 역할 빌리기에서 거부됐습니다. 신뢰 조건과 저장소 Secrets의 역할, 계정을 대조하고 있고, 발표 전에 다시 돌립니다.</p>
+    <p>넷째, 11월 18일 nginx 보안 취약점이 공개돼 포털 서버를 1.30.7 이상으로 올리기로 했습니다. <strong>서버를 띄우면 패치 책임도 따라온다</strong>는 것을 배웠습니다.</p>
+    <p>정리하면, <strong>반복해서 쓸 인프라는 코드로 관리해야 한다</strong>는 것입니다. 감사합니다. 질문 받겠습니다.</p>
+    <p><strong>질문이 오면:</strong> "비용은 얼마나 드나요?" → 설계 문서 기준으로 포털 서버와 고정 IP를 켜 두면 하루 약 0.8달러, 소개 페이지 서버까지 만들면 하루 약 1.3달러입니다. 월 40달러 예산 알림을 걸었고, 발표 뒤 terraform destroy로 정리합니다.</p>
   </aside>
 </section>
 
@@ -810,7 +728,7 @@ gh workflow run provision.yml -f deployment=&lt;이름&gt; -f action=plan</code>
 <script>
 /* 아래 줄(평가표 칸 · 쪽 번호)을 장마다 붙이고, 발표 중에 모양이 바뀌는 키(T · A)를 막는다. */
 (function () {
-  var SEC = ['', '프로젝트 개요', '전체 시스템 구성도', '쓴 기술과 클라우드 배포', '개발 소스와 완성도', '기능 설명과 시연', '팀별 역할', 'GitHub · CI/CD · 배운 것'];
+  var SEC = ['', '프로젝트 개요', '전체 시스템 구성도', '쓴 기술과 클라우드 배포', '개발 소스와 완성도', '기능 설명과 시연', '팀별 역할', 'Jira · GitHub · CI/CD · 교훈'];
   var slides = document.querySelectorAll('.deck .slide');
   for (var i = 0; i < slides.length; i++) {
     var n = +slides[i].getAttribute('data-sec') || 0;
@@ -825,7 +743,7 @@ gh workflow run provision.yml -f deployment=&lt;이름&gt; -f action=plan</code>
       where.appendChild(trk);
       where.appendChild(document.createTextNode('평가 ' + n + ' · ' + SEC[n]));
     } else {
-      where.appendChild(document.createTextNode('2026-Codyssey-Final-Proj / Floe-demo-page'));
+      where.appendChild(document.createTextNode('클라우드 컴퓨팅 3조 · Floe 데모를 코드로 배포하다'));
     }
     var pg = document.createElement('span');
     pg.textContent = (i + 1) + ' / ' + slides.length;

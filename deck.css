@@ -166,3 +166,127 @@ svg .card{fill:var(--paper)}
 .rec video{display:block;object-fit:contain;background:var(--island);border-radius:22px}
 .rec .slot{aspect-ratio:auto}
 .rec [hidden],.src [hidden]{display:none}
+
+/* ══ v2 (2026-11-25) — 3조 발표자료 v2 22장과 같은 내용. 장이 늘어 제목을 한 단계 줄이고, 상태 색 넷을 둔다 ══
+   운영 중 = 민트 · 적용됨 = 얼음 · plan 검증까지 / 남은 것 = 금빛 · 쓰지 않음 = 흐린 칸 */
+.ttl{font-size:68px}
+.cover h1{font-size:108px}
+.cover .kick{font-size:30px;line-height:1.4;margin:0 0 22px;color:var(--mute)}
+.st-on{background:var(--mint-soft)!important}
+.st-ap{background:var(--ice)!important}
+.st-plan{background:var(--gold-soft)!important}
+.st-off{background:var(--off)!important}
+.lab{font-family:var(--font-disp);font-weight:400;font-size:34px;line-height:1.2;margin:0 0 16px;color:var(--sea)}
+.lab.on{color:#2F6B4F}
+.lab.left{color:#8A5A1E}
+
+/* 표: 머리 줄 + 줄마다 색 단계 */
+table.tbl{width:100%;border-collapse:separate;border-spacing:0 8px;table-layout:fixed}
+table.tbl th,table.tbl td{text-align:left;vertical-align:middle;padding:14px 26px;font-weight:400;font-size:28px;line-height:1.35;background:var(--paper);word-break:keep-all}
+table.tbl thead th{background:var(--island);color:var(--paper);font-size:26px;padding:14px 26px}
+table.tbl thead th:first-child,table.tbl td:first-child{border-radius:18px 0 0 18px}
+table.tbl thead th:last-child,table.tbl td:last-child{border-radius:0 18px 18px 0}
+table.tbl tbody tr:nth-child(even) td{background:var(--ice)}
+table.tbl td.k{font-family:var(--font-disp);font-size:30px}
+table.tbl .c{text-align:center}
+table.tbl.big th,table.tbl.big td{font-size:32px;padding:16px 30px}
+table.tbl.big td.k{font-size:32px}
+
+/* 카드 */
+.cards{display:grid;gap:22px;min-height:0}
+.cards > div{border-radius:28px;padding:26px 36px;background:var(--paper);font-size:30px;line-height:1.38;word-break:keep-all;display:flex;flex-direction:column;justify-content:center}
+.cards > div b{font-family:var(--font-disp);font-weight:400;font-size:38px;line-height:1.2;color:var(--ink)}
+.cards > div span{font-size:27px;color:var(--mute);margin-top:6px}
+.cards.c2{grid-template-columns:1fr 1fr}
+.cards.c4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:stretch;height:100%;min-height:0}
+.split.wide-l{grid-template-columns:1.15fr 1fr}
+.split.wide-r{grid-template-columns:1fr 1.15fr}
+.col{display:flex;flex-direction:column;min-height:0;gap:18px}
+.col > .cards{flex:1}
+.cards > div.num{flex-direction:row;align-items:center;justify-content:flex-start;gap:28px}
+.num i{flex:none;display:grid;place-items:center;width:64px;height:64px;border-radius:50%;background:var(--sea);color:var(--paper);font-style:normal;font-family:var(--font-disp);font-size:32px}
+.num p{margin:0}
+
+/* 3장: 손 ↔ 코드 */
+.vs{display:grid;grid-template-columns:1fr 70px 1fr;gap:20px 18px;align-items:center}
+.vs .h{font-family:var(--font-disp);font-size:36px;line-height:1.2}
+.vs .h.l{color:#8A5A1E}.vs .h.r{color:#2F6B4F}
+.vs .a{font-size:46px;color:var(--mute);text-align:center}
+.vs > div.b{border-radius:26px;padding:30px 38px;font-size:36px;line-height:1.35;word-break:keep-all}
+.goalbar{margin:30px 0 0;border-radius:26px;padding:26px 40px;background:var(--paper);font-size:36px;text-align:center;word-break:keep-all}
+.goalbar b{font-family:var(--font-disp);font-weight:400}
+
+/* 7장: 여섯 단계 + 운영 중 길 */
+ol.steps,ol.chain{list-style:none;margin:0;padding:0;display:grid;gap:30px}
+ol.steps{grid-template-columns:repeat(6,1fr)}
+ol.chain{grid-template-columns:repeat(5,1fr)}
+ol.steps li,ol.chain li{position:relative;border-radius:24px;background:var(--paper);word-break:keep-all}
+ol.steps li{padding:56px 22px 24px;min-height:300px}
+ol.steps li i{position:absolute;left:18px;top:-26px;display:grid;place-items:center;width:56px;height:56px;border-radius:50%;background:var(--sea);color:var(--paper);font-style:normal;font-family:var(--font-disp);font-size:28px}
+ol.steps li b{display:block;font-family:var(--font-disp);font-weight:400;font-size:34px;line-height:1.2;margin:0 0 14px}
+ol.steps li span{display:block;font-size:25px;line-height:1.45;color:var(--mute)}
+ol.chain li{padding:24px 18px;font-size:29px;line-height:1.3;text-align:center;display:grid;place-items:center;min-height:110px}
+ol.steps li:not(:last-child)::after,ol.chain li:not(:last-child)::after{content:"";position:absolute;right:-27px;top:50%;width:24px;height:4px;background:var(--mute);border-radius:2px}
+.lanes{display:flex;flex-direction:column;justify-content:center;gap:26px;height:100%}
+.lanes .lab{margin:0}
+.lanes ol.steps{margin-top:22px}
+
+/* 12장: 짧은 코드 칸 */
+pre.cmd.sm{font-size:25px;line-height:1.5;padding:34px 44px;height:100%}
+
+/* 14장: 양식 그림(진짜 칸 이름) */
+.form{border-radius:28px;background:var(--paper);padding:34px 40px;display:grid;grid-template-columns:auto 1fr;gap:20px 28px;align-content:center;font-size:28px}
+.form h4{grid-column:1/-1;margin:0 0 6px;font-family:var(--font-disp);font-weight:400;font-size:34px}
+.form label{color:var(--mute);align-self:center}
+.form .in{background:var(--desk);border-radius:14px;padding:12px 20px;font-family:var(--font-code);font-size:26px}
+.form .btns{display:flex;gap:16px}
+.form .btns span{border-radius:14px;padding:12px 26px;background:var(--btn);color:var(--btn-ink)}
+.form .btns span + span{background:var(--off)}
+.form small{grid-column:1/-1;font-size:22px;color:var(--mute)}
+ol.join{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+ol.join li{position:relative;border-radius:20px;background:var(--mint-soft);padding:20px 12px;font-size:26px;text-align:center;word-break:keep-all}
+ol.join li:not(:last-child)::after{content:"";position:absolute;right:-19px;top:50%;width:16px;height:4px;background:var(--mute);border-radius:2px}
+
+/* 15장: 폴더 지도 */
+dl.tree{margin:0;border-radius:28px;background:var(--paper);padding:30px 40px;display:grid;grid-template-columns:auto 1fr;gap:16px 30px;align-content:center;height:100%}
+dl.tree dt{font-family:var(--font-code);font-size:27px}
+dl.tree dd{margin:0;font-size:27px;color:var(--mute)}
+.state{border-radius:28px;padding:24px 36px;word-break:keep-all}
+.state h3{margin:0 0 8px;font-family:var(--font-disp);font-weight:400;font-size:36px;line-height:1.2}
+.state ul{margin:0;padding:0;list-style:none}
+.state li{font-size:28px;line-height:1.42}
+.state li::before{content:"· "}
+
+/* 16장: 주소 줄 · 시연 차례 */
+.urlbar{border-radius:24px;background:var(--mint-soft);padding:18px 30px;text-align:center;font-family:var(--font-code);font-size:38px;margin:0 0 30px}
+ol.order{list-style:none;margin:30px 0 0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:22px;counter-reset:o}
+ol.order li{border-radius:20px;background:var(--paper);padding:20px;font-size:30px;text-align:center;counter-increment:o}
+ol.order li::before{content:counter(o) ". "}
+.wins.three .win figcaption{font-size:28px}
+
+/* 17장: 실제 실행 기록 */
+.log{border-radius:26px;background:var(--paper);padding:26px 36px;font-family:var(--font-code);font-size:26px;line-height:1.55}
+.log h4{margin:0 0 6px;font-family:var(--font-text);font-weight:400;font-size:30px;color:var(--ink)}
+.log .ok{color:#2F6B4F}.log .no{color:#9A4A1E}.log .m{color:var(--mute)}
+.rec .slot{font-size:30px}
+
+/* 19장: Jira 보드 · 칸 넷 · 사람별 막대 */
+.shot-tall{margin:0;height:100%;min-height:0;display:flex;flex-direction:column}
+.shot-tall img{flex:1;min-height:0;width:auto;max-width:100%;object-fit:contain;object-position:left top;border-radius:20px;align-self:flex-start}
+.shot-tall figcaption{font-size:22px;color:var(--mute);margin-top:10px}
+.four{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.four > div{border-radius:22px;padding:18px 10px;text-align:center}
+.four b{display:block;font-family:var(--font-disp);font-weight:400;font-size:64px;line-height:1}
+.four span{display:block;font-size:24px;color:var(--mute);margin-top:6px}
+.bars{display:grid;grid-template-columns:auto 1fr;gap:14px 20px;align-items:center}
+.bars dt{font-size:28px;text-align:right}
+.bars dd{margin:0;display:flex;align-items:center;gap:14px;font-family:var(--font-disp);font-size:30px}
+.bars dd i{display:block;height:40px;border-radius:0 12px 12px 0;background:var(--btn)}
+.bars.big dt{font-size:32px}.bars.big dd i{height:72px}.bars.big dd{font-size:40px}
+.mini{font-size:22px;color:var(--mute);margin:6px 0 0}
+
+/* 20장: 실제 예 */
+.eg{border-radius:26px;background:var(--paper);padding:24px 36px;font-size:28px;line-height:1.5;margin-top:24px}
+.eg b{font-family:var(--font-disp);font-weight:400}
+.eg code{font-family:var(--font-code);font-size:26px}
